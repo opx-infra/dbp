@@ -1,20 +1,13 @@
-# gbp-docker
-
-*git-buildpackage + docker*
-
-gbp-docker is an opinionated Debian development environment in a container. A small Python (>= 3.5) script is included to help you manage the container lifecycle. Example `docker run` invocations are also included later in this page.
-
 # dbp
 
-dbp is used to manage the persistence of the development environment, enabling compiler and dependency caches for faster builds. dbp requires Python (>= 3.5).
+dbp is used to manage the persistence of the [gbp-docker](https://github.com/opx-infra/gbp-docker) container, enabling compiler and dependency caches for faster builds. dbp requires Python (>= 3.5).
 
 ## Installation
 
 Fetch the latest release.
 
 ```bash
-curl -LO https://raw.githubusercontent.com/opx-infra/gbp-docker/master/dbp
-chmod +x ./dbp
+pip3 install dbp
 ```
 
 ## Usage

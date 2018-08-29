@@ -1,0 +1,14 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.scripts]
+dbp = "dbp:main"
+
+[tool.flit.metadata]
+module = "dbp"
+author = "Dell inc."
+author-email = "opx-infra@openswitch.net"
+home-page = "https://openswitch.net"
+classifiers = ["License :: OSI Approved :: MIT License"]
+requires-python = ">=3.3,<4"

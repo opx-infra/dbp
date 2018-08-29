@@ -1,5 +1,6 @@
-#!/usr/bin/env python3
 """Simple program to manage gbp-docker container lifecycle."""
+
+__version__ = "0.1.2"
 
 import argparse
 import logging
@@ -259,9 +260,7 @@ def main() -> int:
 
     # shell subcommand
     shell_parser = sps.add_parser("shell", help="launch development environment")
-    shell_parser.add_argument(
-        "--command", "-c", help="command to run noninteractively"
-    )
+    shell_parser.add_argument("--command", "-c", help="command to run noninteractively")
     shell_parser.set_defaults(func=cmd_shell)
 
     args = parser.parse_args()
