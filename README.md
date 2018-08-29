@@ -99,8 +99,8 @@ $ fakeroot debian/rules clean
 $ export EXTRA_SOURCES="$EXTRA_SOURCES
 deb http://deb.openswitch.net/stretch 3.0.0 opx opx-non-free"
 
-# Run gbp buildpackage again to do a clean build and install any new dependencies
-$ gbp buildpackage
+# Run gbp buildpackage again to do a clean build, but this time skip installing build deps
+$ gbp buildpackage --git-prebuild=':'
 
 # Run an "official" build (what the CI runs)
 $ cd /mnt
