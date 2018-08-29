@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 
 import argparse
 import logging
@@ -221,6 +221,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
 
     # general arguments
+    parser.add_argument("--version", "-V", action="store_true", help="print program version")
     parser.add_argument(
         "--verbose", "-v", help="-v for info, -vv for debug", action="count", default=0
     )
@@ -264,6 +265,10 @@ def main() -> int:
     shell_parser.set_defaults(func=cmd_shell)
 
     args = parser.parse_args()
+
+    if args.version:
+        print("dbp {}".format(__version__))
+        return 0
 
     # set up logging
     logging.basicConfig(
