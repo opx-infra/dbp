@@ -81,10 +81,13 @@ dbp run
 dbp shell
 
 # Now we are inside the container (denoted by $ prompt)
+$ cd src/
 
 # Install build dependencies and build the package
-$ cd src/
 $ gbp buildpackage
+
+# Only install build dependencies
+$ install-build-deps
 
 # On failed builds, avoid the long gbp build time by quickly rebuilding
 $ fakeroot debian/rules build
