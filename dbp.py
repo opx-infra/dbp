@@ -221,7 +221,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
 
     # general arguments
-    parser.add_argument("--version", "-V", action="store_true", help="print program version")
+    parser.add_argument(
+        "--version", "-V", action="store_true", help="print program version"
+    )
     parser.add_argument(
         "--verbose", "-v", help="-v for info, -vv for debug", action="count", default=0
     )
