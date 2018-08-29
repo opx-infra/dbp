@@ -106,10 +106,13 @@ $ gbp buildpackage
 $ cd /mnt
 $ build src
 
+# Build an unstripped, unoptimized binary (this also works with gbp and debian/rules)
+$ DEB_BUILD_OPTIONS='nostrip noopt debug' build src
+
 # Exit the container
 $ exit
 
-# Remove the container when finished (or use `dbp run` again to re-enter the same container)
+# Remove the container when finished (or use `dbp shell/build` again to re-enter the same container)
 dbp rm
 ```
 
