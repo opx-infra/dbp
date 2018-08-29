@@ -1,5 +1,8 @@
 # dbp
 
+[![PyPI version](https://badge.fury.io/py/dbp.svg)](https://pypi.org/project/dbp/)
+[![Build status](https://badge.buildkite.com/1767c846c36bcae205347eb72a5396be1474608249b0849f16.svg)](https://buildkite.com/opx/opx-infra-dbp)
+
 dbp is used to manage the persistence of the [gbp-docker](https://github.com/opx-infra/gbp-docker) container, enabling compiler and dependency caches for faster builds. dbp requires Python (>= 3.5).
 
 ## Installation

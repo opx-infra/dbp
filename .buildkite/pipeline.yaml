@@ -1,8 +1,5 @@
 steps:
   - label: ":python: format"
     command: |
-      echo "--- Installing dependencies"
-      pipenv install --three
-      pipenv run pip install black
       echo "+++ Running formatter"
-      pipenv run black --check dbp.py
+      /usr/local/bin/black --check dbp.py
