@@ -8,7 +8,7 @@ author = "Dell inc."
 author-email = "opx-infra@openswitch.net"
 home-page = "https://openswitch.net"
 classifiers = ["License :: OSI Approved :: MIT License"]
-requires-python = ">=3.3,<4"
+requires-python = ">=3.5,<4"
 description-file="README.md"
 
 [tool.flit.scripts]
