@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 import argparse
 import logging
@@ -151,7 +151,7 @@ def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
         ]
 
     if command is not None:
-        cmd = cmd + ["-c", command]
+        cmd = cmd + ["bash", "-l", "-c", command]
 
     return irun(cmd)
 
