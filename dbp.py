@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 import argparse
 import logging
@@ -19,10 +19,24 @@ USER = os.getenv("USER")
 
 CONTAINER_NAME = "{}-dbp-{}".format(USER, PWD.stem)
 IMAGE = "opxhub/gbp"
+IMAGE_VERSION = "v1.0.0"
 
 
 L = logging.getLogger("dbp")
 L.addHandler(logging.NullHandler())
+
+
+def image_name(image: str, dist: str, dev: bool) -> str:
+    """Returns the Docker image to use, allowing for custom images."""
+    if ":" in image:
+        return image
+
+    if dev:
+        template = "{}:{}-{}-dev"
+    else:
+        template = "{}:{}-{}"
+
+    return template.format(image, IMAGE_VERSION, dist)
 
 
 def irun(cmd: List[str]) -> int:
@@ -91,12 +105,11 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
         "-e=UID={}".format(UID),
         "-e=GID={}".format(GID),
         "-e=EXTRA_SOURCES={}".format(sources),
+        image_name(image, dist, dev),
     ]
 
-    if dev:
-        cmd = cmd + ["{}:{}-dev".format(image, dist)]
-    else:
-        cmd = cmd + ["{}:{}".format(image, dist), "bash", "-l"]
+    if not dev:
+        cmd = cmd + ["bash", "-l"]
 
     return irun(cmd)
 
@@ -134,9 +147,7 @@ def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
             "-e=UID={}".format(UID),
             "-e=GID={}".format(GID),
             "-e=EXTRA_SOURCES={}".format(sources),
-            "{}:{}-dev".format(image, dist),
-            "bash",
-            "-l",
+            image_name(image, dist, True),
         ]
 
     if command is not None:
@@ -153,12 +164,12 @@ def docker_start(dist: str) -> int:
 
 def pull_images(image: str, dist: str) -> int:
     """Runs docker pull for both build and development images and returns the return code"""
-    cmd = ["docker", "pull", "{}:{}".format(image, dist)]
+    cmd = ["docker", "pull", image_name(image, dist, False)]
     rc = irun(cmd)
     if rc != 0:
         return rc
 
-    cmd = ["docker", "pull", "{}:{}-dev".format(image, dist)]
+    cmd = ["docker", "pull", image_name(image, dist, True)]
     return irun(cmd)
 
 
