@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 import argparse
 import logging
@@ -39,17 +39,19 @@ def image_name(image: str, dist: str, dev: bool) -> str:
     return template.format(image, IMAGE_VERSION, dist)
 
 
-def irun(cmd: List[str]) -> int:
+def irun(cmd: List[str], quiet=False) -> int:
     """irun runs an interactive command."""
     L.debug("Running {}".format(" ".join(cmd)))
-    proc = run(cmd, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
+    if quiet:
+        proc = run(cmd, stdin=sys.stdin, stdout=DEVNULL, stderr=DEVNULL)
+    else:
+        proc = run(cmd, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
     return proc.returncode
 
 
 def container_exists() -> bool:
     """Returns true if our dbp container can be inspected"""
-    proc = run(["docker", "inspect", CONTAINER_NAME], stdout=DEVNULL, stderr=DEVNULL)
-    return proc.returncode == 0
+    return irun(["docker", "inspect", CONTAINER_NAME], quiet=True) == 0
 
 
 def container_running(dist: str) -> bool:
@@ -111,7 +113,7 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
     if not dev:
         cmd = cmd + ["bash", "-l"]
 
-    return irun(cmd)
+    return irun(cmd, quiet=True)
 
 
 def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
@@ -153,13 +155,13 @@ def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
     if command is not None:
         cmd = cmd + ["bash", "-l", "-c", command]
 
-    return irun(cmd)
+    return irun(cmd, quiet=False)
 
 
 def docker_start(dist: str) -> int:
     """Runs docker start and returns the return code"""
     cmd = ["docker", "start", CONTAINER_NAME]
-    return irun(cmd)
+    return irun(cmd, quiet=True)
 
 
 def pull_images(image: str, dist: str) -> int:
@@ -177,7 +179,7 @@ def remove_container() -> int:
     """Runs docker rm -f for the dbp container"""
     if container_exists():
         cmd = ["docker", "rm", "-f", CONTAINER_NAME]
-        return irun(cmd)
+        return irun(cmd, quiet=True)
 
     L.warning("Container does not exist.")
     return 1
