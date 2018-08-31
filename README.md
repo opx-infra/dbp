@@ -123,10 +123,16 @@ dbp rm
 
 ### Build multiple repositories
 
-Simple add more directories to the build command.
+dbp will build all repositories in the order specified.
 
 ```bash
 dbp build src new-src amazing-src
+```
+
+[controlgraph](https://github.com/opx-infra/controlgraph) can be used to build in controlgraph order.
+
+```bash
+dbp build $(controlgraph)
 ```
 
 ### Pass additional `git-buildpackage` options
