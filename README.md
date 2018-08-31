@@ -20,7 +20,7 @@ pip3 install dbp
 * `dbp run` starts a persistent container in the background
 * `dbp rm` removes the persistent container
 
-Both `dbp build` and `dbp run` use temporary containers if no container exists.
+Both `dbp build` and `dbp shell` use temporary containers if no container exists.
 
 ## Advanced usage
 
