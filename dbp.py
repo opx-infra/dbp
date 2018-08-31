@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.3.3"
+__version__ = "0.4.0~pre"
 
 import argparse
 import logging
@@ -8,9 +8,14 @@ import os
 import shutil
 import sys
 
+from collections import namedtuple
 from pathlib import Path
-from subprocess import run, PIPE, DEVNULL
+from queue import Queue
+from subprocess import run, PIPE, DEVNULL, STDOUT
+from threading import Thread
 from typing import List
+
+import networkx as nx
 
 PWD = Path.cwd()
 UID = os.getuid()
@@ -39,11 +44,13 @@ def image_name(image: str, dist: str, dev: bool) -> str:
     return template.format(image, IMAGE_VERSION, dist)
 
 
-def irun(cmd: List[str], quiet=False) -> int:
+def irun(cmd: List[str], quiet=False, file=None) -> int:
     """irun runs an interactive command."""
     L.debug("Running {}".format(" ".join(cmd)))
-    if quiet:
-        proc = run(cmd, stdin=sys.stdin, stdout=DEVNULL, stderr=DEVNULL)
+    if file is not None:
+        proc = run(cmd, stdout=file.open("w"), stderr=STDOUT)
+    elif quiet:
+        proc = run(cmd, stdout=DEVNULL, stderr=DEVNULL)
     else:
         proc = run(cmd, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
     return proc.returncode
@@ -64,7 +71,9 @@ def container_running(dist: str) -> bool:
     return proc.returncode == 0 and "true" in str(proc.stdout)
 
 
-def buildpackage(dist: str, target: Path, sources: str, gbp_options: str) -> int:
+def buildpackage(
+    dist: str, target: Path, sources: str, gbp_options: str, quiet=False, file=None
+) -> int:
     """Runs gbp buildpackage --git-export-dir=pool/{dist}-amd64/{target}
 
     Container must already be started.
@@ -73,21 +82,23 @@ def buildpackage(dist: str, target: Path, sources: str, gbp_options: str) -> int
         L.error("Build target `{}` does not exist".format(target))
         return 1
 
-    cmd = [
-        "docker",
-        "exec",
-        "-it",
-        "--user=build",
-        "-e=UID={}".format(UID),
-        "-e=GID={}".format(GID),
-        "-e=EXTRA_SOURCES={}".format(sources),
-        CONTAINER_NAME,
-        "build",
-        target.stem,
-        gbp_options,
-    ]
+    cmd = ["docker", "exec", "-t"]
+    if sys.stdin.isatty():
+        cmd.append("-i")
+    cmd.extend(
+        [
+            "--user=build",
+            "-e=UID={}".format(UID),
+            "-e=GID={}".format(GID),
+            "-e=EXTRA_SOURCES={}".format(sources),
+            CONTAINER_NAME,
+            "build",
+            target.stem,
+            gbp_options,
+        ]
+    )
 
-    return irun(cmd)
+    return irun(cmd, quiet, file)
 
 
 def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
@@ -185,7 +196,55 @@ def remove_container() -> int:
     return 1
 
 
+WorkItem = namedtuple(
+    "WorkItem",
+    ["graph", "node", "built", "level", "dist", "sources", "options", "quiet"],
+)
+
+
+def build_worker(q):
+    while True:
+        work = q.get()
+        L.debug("{}{} started".format("-" * work.level, work.node))
+
+        if not work.built[work.node] and all(
+            [work.built[n] for n in work.graph.predecessors(work.node)]
+        ):
+            L.info("{}{} building".format("-" * work.level, work.node))
+
+            file = None
+            if work.quiet:
+                file = Path("{}-{}.build".format(work.level, work.node))
+            rc = buildpackage(
+                work.dist, Path(work.node), work.sources, work.options, work.quiet, file
+            )
+
+            if rc != 0:
+                L.error("{}{} failure".format("-" * work.level, work.node))
+            else:
+                L.info("{}{} success!".format("-" * work.level, work.node))
+                work.built[work.node] = True
+                for n in list(work.graph.successors(work.node)):
+                    if all([work.built[m] for m in work.graph.predecessors(n)]):
+                        q.put(
+                            WorkItem(
+                                graph=work.graph,
+                                node=n,
+                                built=work.built,
+                                level=work.level + 1,
+                                dist=work.dist,
+                                sources=work.sources,
+                                options=work.options,
+                                quiet=work.quiet,
+                            )
+                        )
+
+        L.debug("{}{} finished".format("-" * work.level, work.node))
+        q.task_done()
+
+
 def cmd_build(args: argparse.Namespace) -> int:
+    """Run with dbp build"""
     rc = 0
     remove = True
 
@@ -197,38 +256,58 @@ def cmd_build(args: argparse.Namespace) -> int:
             L.error("Could not run container")
             return rc
 
-    for t in args.targets:
-        if not container_running(args.dist):
-            rc = docker_start(args.dist)
-            if rc != 0:
-                L.error("Could not start stopped container")
-                break
-
-        rc = buildpackage(args.dist, t, args.extra_sources, args.gbp)
+    if not container_running(args.dist):
+        rc = docker_start(args.dist)
         if rc != 0:
-            L.error("Could not build package {}".format(t.stem))
-            break
+            L.error("Could not start stopped container")
+            return 1
 
-    if remove:
-        remove_container()
+    G = nx.drawing.nx_pydot.read_dot(sys.stdin)
+    built = {n: False for n in G}
+
+    no_deps = [n for n in G if G.in_degree(n) == 0]
+    q = Queue(maxsize=len(no_deps))
+    threads = []
+    for i in range(args.parallel):
+        worker = Thread(target=build_worker, args=(q,))
+        worker.setDaemon(True)
+        worker.start()
+        threads.append(worker)
+
+    quiet = args.parallel > 1
+    for n in no_deps:
+        q.put(WorkItem(G, n, built, 0, args.dist, args.extra_sources, args.gbp, quiet))
+
+    try:
+        q.join()
+    except KeyboardInterrupt:
+        L.info("Got SIGINT")
+        q.queue.clear()
+    finally:
+        if remove:
+            remove_container()
 
     return 0
 
 
 def cmd_pull(args: argparse.Namespace) -> int:
+    """Run with dbp pull"""
     return pull_images(args.image, args.dist)
 
 
 def cmd_rm(args: argparse.Namespace) -> int:
+    """Run with dbp rm"""
     remove_container()
     return 0
 
 
 def cmd_run(args: argparse.Namespace) -> int:
+    """Run with dbp run"""
     return docker_run(args.image, args.dist, args.extra_sources, dev=True)
 
 
 def cmd_shell(args: argparse.Namespace) -> int:
+    """Run with dbp shell"""
     return docker_shell(args.image, args.dist, args.extra_sources, args.command)
 
 
@@ -258,10 +337,17 @@ def main() -> int:
     # build subcommand
     build_parser = sps.add_parser("build", help="run gbp buildpackage")
     build_parser.add_argument(
-        "targets", nargs="+", type=Path, help="directories to build"
+        "targets", nargs="*", type=Path, help="directories to build"
     )
     build_parser.add_argument(
         "--gbp", "-g", default="", help="additional git-buildpackage options to pass"
+    )
+    build_parser.add_argument(
+        "--parallel",
+        "-p",
+        default=1,
+        type=int,
+        help="build in parallel; must provide reverse controlgraph on stdin",
     )
     build_parser.set_defaults(func=cmd_build)
 
