@@ -204,6 +204,11 @@ def cmd_build(args: argparse.Namespace) -> int:
                 L.error("Could not start stopped container")
                 break
 
+        print(
+            '--- cd {}; gbp buildpackage --git-export-dir="/mnt/pool/{}-amd64/{}"'.format(
+                t.stem, args.dist, t.stem
+            )
+        )
         rc = buildpackage(args.dist, t, args.extra_sources, args.gbp)
         if rc != 0:
             L.error("Could not build package {}".format(t.stem))
