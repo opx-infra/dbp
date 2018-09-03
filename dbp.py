@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.3.3"
+__version__ = "0.4.0"
 
 import argparse
 import logging
@@ -12,6 +12,8 @@ from pathlib import Path
 from subprocess import run, PIPE, DEVNULL
 from typing import List
 
+import networkx as nx
+
 PWD = Path.cwd()
 UID = os.getuid()
 GID = os.getgid()
@@ -20,6 +22,10 @@ USER = os.getenv("USER")
 CONTAINER_NAME = "{}-dbp-{}".format(USER, PWD.stem)
 IMAGE = "opxhub/gbp"
 IMAGE_VERSION = "v1.0.0"
+
+LOG_BUILD_COMMAND = (
+    '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}"'
+)
 
 
 L = logging.getLogger("dbp")
@@ -76,7 +82,7 @@ def buildpackage(dist: str, target: Path, sources: str, gbp_options: str) -> int
     cmd = [
         "docker",
         "exec",
-        "-it",
+        "-it" if sys.stdin.isatty() else "-t",
         "--user=build",
         "-e=UID={}".format(UID),
         "-e=GID={}".format(GID),
@@ -189,6 +195,18 @@ def cmd_build(args: argparse.Namespace) -> int:
     rc = 0
     remove = True
 
+    # generate build order through dfs on builddepends graph
+    if not sys.stdin.isatty() and not args.targets:
+        G = nx.drawing.nx_pydot.read_dot(sys.stdin)
+        args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
+
+    if not args.targets:
+        return 0
+
+    if args.print:
+        print(" ".join([p.stem for p in args.targets]))
+        return 0
+
     if container_exists():
         remove = False
     else:
@@ -197,18 +215,15 @@ def cmd_build(args: argparse.Namespace) -> int:
             L.error("Could not run container")
             return rc
 
-    for t in args.targets:
-        if not container_running(args.dist):
-            rc = docker_start(args.dist)
-            if rc != 0:
-                L.error("Could not start stopped container")
-                break
+    if not container_running(args.dist):
+        rc = docker_start(args.dist)
+        if rc != 0:
+            L.error("Could not start stopped container")
+            return rc
 
-        print(
-            '--- cd {}; gbp buildpackage --git-export-dir="/mnt/pool/{}-amd64/{}"'.format(
-                t.stem, args.dist, t.stem
-            )
-        )
+    print("--- Building {} repositories".format(len(args.targets)))
+    for t in args.targets:
+        print(LOG_BUILD_COMMAND.format(t.stem, args.dist))
         rc = buildpackage(args.dist, t, args.extra_sources, args.gbp)
         if rc != 0:
             L.error("Could not build package {}".format(t.stem))
@@ -263,10 +278,13 @@ def main() -> int:
     # build subcommand
     build_parser = sps.add_parser("build", help="run gbp buildpackage")
     build_parser.add_argument(
-        "targets", nargs="+", type=Path, help="directories to build"
+        "--gbp", "-g", default="", help="additional git-buildpackage options to pass"
     )
     build_parser.add_argument(
-        "--gbp", "-g", default="", help="additional git-buildpackage options to pass"
+        "--print", "-p", action="store_true", help="print build order and exit"
+    )
+    build_parser.add_argument(
+        "targets", nargs="*", type=Path, help="directories to build"
     )
     build_parser.set_defaults(func=cmd_build)
 

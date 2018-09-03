@@ -129,10 +129,11 @@ dbp will build all repositories in the order specified.
 dbp build src new-src amazing-src
 ```
 
-[controlgraph](https://github.com/opx-infra/controlgraph) can be used to build in controlgraph order.
+Supply a [build dependency graph](https://github.com/opx-infra/builddepends) on
+stdin for automatic dependency resolution.
 
 ```bash
-dbp build $(controlgraph)
+bd | dbp build
 ```
 
 ### Pass additional `git-buildpackage` options
