@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 import argparse
 import logging
@@ -10,6 +10,7 @@ import sys
 
 from pathlib import Path
 from subprocess import run, PIPE, DEVNULL
+from time import sleep
 from typing import List
 
 import networkx as nx
@@ -119,7 +120,10 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
     if not dev:
         cmd = cmd + ["bash", "-l"]
 
-    return irun(cmd, quiet=True)
+    rc = irun(cmd, quiet=True)
+    # wait for user to be created
+    sleep(1)
+    return rc
 
 
 def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
