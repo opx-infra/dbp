@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 import argparse
 import logging
@@ -141,8 +141,6 @@ def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
             "-e=GID={}".format(GID),
             "-e=EXTRA_SOURCES={}".format(sources),
             CONTAINER_NAME,
-            "bash",
-            "-l",
         ]
         if not container_running(dist):
             docker_start(dist)
