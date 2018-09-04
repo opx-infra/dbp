@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 
 import argparse
 import logging
@@ -25,7 +25,7 @@ IMAGE = "opxhub/gbp"
 IMAGE_VERSION = "v1.0.0"
 
 LOG_BUILD_COMMAND = (
-    '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}"'
+    '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}" {2}'
 )
 
 
@@ -141,6 +141,8 @@ def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
             "-e=GID={}".format(GID),
             "-e=EXTRA_SOURCES={}".format(sources),
             CONTAINER_NAME,
+            "bash",
+            "-l",
         ]
         if not container_running(dist):
             docker_start(dist)
@@ -158,10 +160,12 @@ def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
             "-e=GID={}".format(GID),
             "-e=EXTRA_SOURCES={}".format(sources),
             image_name(image, dist, True),
+            "bash",
+            "-l",
         ]
 
     if command is not None:
-        cmd = cmd + ["bash", "-l", "-c", command]
+        cmd = cmd + ["-c", command]
 
     return irun(cmd, quiet=False)
 
@@ -225,7 +229,7 @@ def cmd_build(args: argparse.Namespace) -> int:
 
     print("--- Building {} repositories".format(len(args.targets)))
     for t in args.targets:
-        print(LOG_BUILD_COMMAND.format(t.stem, args.dist))
+        print(LOG_BUILD_COMMAND.format(t.stem, args.dist, args.gbp))
         rc = buildpackage(args.dist, t, args.extra_sources, args.gbp)
         if rc != 0:
             L.error("Could not build package {}".format(t.stem))
