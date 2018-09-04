@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.4.4"
+__version__ = "0.5.0"
 
 import argparse
 import logging
@@ -26,7 +26,7 @@ IMAGE = "opxhub/gbp"
 IMAGE_VERSION = "v1.0.0"
 
 LOG_BUILD_COMMAND = (
-    '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}" {2}'
+    '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}" {2}\n'
 )
 
 
@@ -205,7 +205,22 @@ def cmd_build(args: argparse.Namespace) -> int:
     # generate build order through dfs on builddepends graph
     if not sys.stdin.isatty() and not args.targets:
         G = nx.drawing.nx_pydot.read_dot(sys.stdin)
-        args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
+        isolates = list(nx.isolates(G))
+        if args.isolates_first:
+            G.remove_nodes_from(isolates)
+            args.targets = [Path(i) for i in isolates] + [
+                Path(n) for n in nx.dfs_postorder_nodes(G)
+            ]
+        elif args.isolates_last:
+            G.remove_nodes_from(isolates)
+            args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)] + [
+                Path(i) for i in isolates
+            ]
+        elif args.no_isolates:
+            G.remove_nodes_from(isolates)
+            args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
+        else:
+            args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
 
     if not args.targets:
         return 0
@@ -228,9 +243,10 @@ def cmd_build(args: argparse.Namespace) -> int:
             L.error("Could not start stopped container")
             return rc
 
-    print("--- Building {} repositories".format(len(args.targets)))
+    sys.stdout.write("--- Building {} repositories\n".format(len(args.targets)))
     for t in args.targets:
-        print(LOG_BUILD_COMMAND.format(t.stem, args.dist, args.gbp))
+        sys.stdout.write(LOG_BUILD_COMMAND.format(t.stem, args.dist, args.gbp))
+        sys.stdout.flush()
         rc = buildpackage(args.dist, t, args.extra_sources, args.gbp)
         if rc != 0:
             L.error("Could not build package {}".format(t.stem))
@@ -292,6 +308,16 @@ def main() -> int:
     )
     build_parser.add_argument(
         "targets", nargs="*", type=Path, help="directories to build"
+    )
+    build_isolates = build_parser.add_mutually_exclusive_group()
+    build_isolates.add_argument(
+        "--isolates-first", action="store_true", help="build free-standing repos first"
+    )
+    build_isolates.add_argument(
+        "--isolates-last", action="store_true", help="build free-standing repos last"
+    )
+    build_isolates.add_argument(
+        "--no-isolates", action="store_true", help="do not build free-standing repos"
     )
     build_parser.set_defaults(func=cmd_build)
 
