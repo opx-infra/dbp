@@ -1,10 +1,11 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 
 import argparse
 import logging
 import os
+import shlex
 import shutil
 import sys
 
@@ -91,8 +92,8 @@ def buildpackage(dist: str, target: Path, sources: str, gbp_options: str) -> int
         CONTAINER_NAME,
         "build",
         target.stem,
-        gbp_options,
     ]
+    cmd.extend(shlex.split(gbp_options))
 
     return irun(cmd)
 
