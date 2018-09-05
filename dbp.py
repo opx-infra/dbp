@@ -16,14 +16,12 @@ from typing import List
 
 import networkx as nx
 
-PWD = Path.cwd()
-UID = os.getuid()
-GID = os.getgid()
-USER = os.getenv("USER")
-
-CONTAINER_NAME = "{}-dbp-{}".format(USER, PWD.stem)
 IMAGE = "opxhub/gbp"
 IMAGE_VERSION = "v1.0.0"
+CONTAINER_NAME = "{}-dbp-{}".format(os.getenv("USER"), Path.cwd().stem)
+
+ENV_UID = "-e=UID={}".format(os.getuid())
+ENV_GID = "-e=GID={}".format(os.getgid())
 
 LOG_BUILD_COMMAND = (
     '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}" {2}\n'
@@ -86,8 +84,8 @@ def buildpackage(dist: str, target: Path, sources: str, gbp_options: str) -> int
         "exec",
         "-it" if sys.stdin.isatty() else "-t",
         "--user=build",
-        "-e=UID={}".format(UID),
-        "-e=GID={}".format(GID),
+        ENV_UID,
+        ENV_GID,
         "-e=EXTRA_SOURCES={}".format(sources),
         CONTAINER_NAME,
         "build",
@@ -110,10 +108,10 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
         "-it",
         "--name={}".format(CONTAINER_NAME),
         "--hostname={}".format(dist),
-        "-v={}:/mnt".format(PWD),
+        "-v={}:/mnt".format(Path.cwd()),
         "-v={}/.gitconfig:/etc/skel/.gitconfig:ro".format(Path.home()),
-        "-e=UID={}".format(UID),
-        "-e=GID={}".format(GID),
+        ENV_UID,
+        ENV_GID,
         "-e=EXTRA_SOURCES={}".format(sources),
         image_name(image, dist, dev),
     ]
@@ -249,8 +247,8 @@ def cmd_shell(args: argparse.Namespace) -> int:
         "exec",
         "-it",
         "--user=build",
-        "-e=UID={}".format(UID),
-        "-e=GID={}".format(GID),
+        ENV_UID,
+        ENV_GID,
         "-e=EXTRA_SOURCES={}".format(args.extra_sources),
         CONTAINER_NAME,
         "bash",
