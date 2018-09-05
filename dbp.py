@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 import argparse
 import logging
@@ -240,12 +240,18 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
         "--name={}".format(CONTAINER_NAME),
         "--hostname={}".format(dist),
         "-v={}:/mnt".format(Path.cwd()),
-        "-v={}/.gitconfig:/etc/skel/.gitconfig:ro".format(Path.home()),
+    ]
+
+    gitconfig = Path(Path.home() / ".gitconfig")
+    if gitconfig.exists():
+        cmd.append("-v={}:/etc/skel/.gitconfig:ro".format(gitconfig))
+
+    cmd.extend([
         ENV_UID,
         ENV_GID,
         "-e=EXTRA_SOURCES={}".format(sources),
         docker_image_name(image, dist, dev),
-    ]
+    ])
 
     if not dev:
         cmd.extend(["bash", "-l"])
