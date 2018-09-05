@@ -119,56 +119,12 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
     ]
 
     if not dev:
-        cmd = cmd + ["bash", "-l"]
+        cmd.extend(["bash", "-l"])
 
     rc = irun(cmd, quiet=True)
     # wait for user to be created
     sleep(1)
     return rc
-
-
-def docker_shell(image: str, dist: str, sources: str, command=None) -> int:
-    """Runs bash in a development container
-
-    Uses (and starts if necessary) any matching pre-existing dbp container.
-    """
-    if container_exists():
-        cmd = [
-            "docker",
-            "exec",
-            "-it",
-            "--user=build",
-            "-e=UID={}".format(UID),
-            "-e=GID={}".format(GID),
-            "-e=EXTRA_SOURCES={}".format(sources),
-            CONTAINER_NAME,
-            "bash",
-            "-l",
-        ]
-        if not container_running(dist):
-            docker_start(dist)
-    else:
-        cmd = [
-            "docker",
-            "run",
-            "--rm",
-            "-it",
-            "--name={}".format(CONTAINER_NAME),
-            "--hostname={}".format(dist),
-            "-v={}:/mnt".format(PWD),
-            "-v={}/.gitconfig:/etc/skel/.gitconfig:ro".format(Path.home()),
-            "-e=UID={}".format(UID),
-            "-e=GID={}".format(GID),
-            "-e=EXTRA_SOURCES={}".format(sources),
-            image_name(image, dist, True),
-            "bash",
-            "-l",
-        ]
-
-    if command is not None:
-        cmd = cmd + ["-c", command]
-
-    return irun(cmd, quiet=False)
 
 
 def docker_start(dist: str) -> int:
@@ -194,7 +150,7 @@ def remove_container() -> int:
         cmd = ["docker", "rm", "-f", CONTAINER_NAME]
         return irun(cmd, quiet=True)
 
-    L.warning("Container does not exist.")
+    L.info("Container does not exist.")
     return 1
 
 
@@ -272,7 +228,44 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 
 def cmd_shell(args: argparse.Namespace) -> int:
-    return docker_shell(args.image, args.dist, args.extra_sources, args.command)
+    remove = True
+
+    if container_exists():
+        remove = False
+    else:
+        rc = docker_run(args.image, args.dist, args.extra_sources, dev=True)
+        if rc != 0:
+            L.error("Could not run container")
+            return rc
+
+    if not container_running(args.dist):
+        rc = docker_start(args.dist)
+        if rc != 0:
+            L.error("Could not start stopped container")
+            return rc
+
+    cmd = [
+        "docker",
+        "exec",
+        "-it",
+        "--user=build",
+        "-e=UID={}".format(UID),
+        "-e=GID={}".format(GID),
+        "-e=EXTRA_SOURCES={}".format(args.extra_sources),
+        CONTAINER_NAME,
+        "bash",
+        "-l",
+    ]
+
+    if args.command:
+        cmd.extend(["-c", args.command])
+
+    rc = irun(cmd, quiet=False)
+
+    if remove:
+        remove_container()
+
+    return rc
 
 
 def main() -> int:
