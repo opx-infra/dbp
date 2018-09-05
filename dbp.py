@@ -32,124 +32,7 @@ L = logging.getLogger("dbp")
 L.addHandler(logging.NullHandler())
 
 
-def image_name(image: str, dist: str, dev: bool) -> str:
-    """Returns the Docker image to use, allowing for custom images."""
-    if ":" in image:
-        return image
-
-    if dev:
-        template = "{}:{}-{}-dev"
-    else:
-        template = "{}:{}-{}"
-
-    return template.format(image, IMAGE_VERSION, dist)
-
-
-def irun(cmd: List[str], quiet=False) -> int:
-    """irun runs an interactive command."""
-    L.debug("Running {}".format(" ".join(cmd)))
-    if quiet:
-        proc = run(cmd, stdin=sys.stdin, stdout=DEVNULL, stderr=DEVNULL)
-    else:
-        proc = run(cmd, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
-    return proc.returncode
-
-
-def container_exists() -> bool:
-    """Returns true if our dbp container can be inspected"""
-    return irun(["docker", "inspect", CONTAINER_NAME], quiet=True) == 0
-
-
-def container_running(dist: str) -> bool:
-    """Returns true if our dbp container is running"""
-    proc = run(
-        ["docker", "inspect", CONTAINER_NAME, "--format={{.State.Running}}"],
-        stdout=PIPE,
-        stderr=DEVNULL,
-    )
-    return proc.returncode == 0 and "true" in str(proc.stdout)
-
-
-def buildpackage(dist: str, target: Path, sources: str, gbp_options: str) -> int:
-    """Runs gbp buildpackage --git-export-dir=pool/{dist}-amd64/{target}
-
-    Container must already be started.
-    """
-    if not target.exists():
-        L.error("Build target `{}` does not exist".format(target))
-        return 1
-
-    cmd = [
-        "docker",
-        "exec",
-        "-it" if sys.stdin.isatty() else "-t",
-        "--user=build",
-        ENV_UID,
-        ENV_GID,
-        "-e=EXTRA_SOURCES={}".format(sources),
-        CONTAINER_NAME,
-        "build",
-        target.stem,
-    ]
-    cmd.extend(shlex.split(gbp_options))
-
-    return irun(cmd)
-
-
-def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
-    if container_exists():
-        L.warning("Container already exists.")
-        return 0
-
-    cmd = [
-        "docker",
-        "run",
-        "-d",
-        "-it",
-        "--name={}".format(CONTAINER_NAME),
-        "--hostname={}".format(dist),
-        "-v={}:/mnt".format(Path.cwd()),
-        "-v={}/.gitconfig:/etc/skel/.gitconfig:ro".format(Path.home()),
-        ENV_UID,
-        ENV_GID,
-        "-e=EXTRA_SOURCES={}".format(sources),
-        image_name(image, dist, dev),
-    ]
-
-    if not dev:
-        cmd.extend(["bash", "-l"])
-
-    rc = irun(cmd, quiet=True)
-    # wait for user to be created
-    sleep(1)
-    return rc
-
-
-def docker_start(dist: str) -> int:
-    """Runs docker start and returns the return code"""
-    cmd = ["docker", "start", CONTAINER_NAME]
-    return irun(cmd, quiet=True)
-
-
-def pull_images(image: str, dist: str) -> int:
-    """Runs docker pull for both build and development images and returns the return code"""
-    cmd = ["docker", "pull", image_name(image, dist, False)]
-    rc = irun(cmd)
-    if rc != 0:
-        return rc
-
-    cmd = ["docker", "pull", image_name(image, dist, True)]
-    return irun(cmd)
-
-
-def remove_container() -> int:
-    """Runs docker rm -f for the dbp container"""
-    if container_exists():
-        cmd = ["docker", "rm", "-f", CONTAINER_NAME]
-        return irun(cmd, quiet=True)
-
-    L.info("Container does not exist.")
-    return 1
+### Commands ##########################################################################
 
 
 def cmd_build(args: argparse.Namespace) -> int:
@@ -183,7 +66,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         print(" ".join([p.stem for p in args.targets]))
         return 0
 
-    if container_exists():
+    if docker_container_exists():
         remove = False
     else:
         rc = docker_run(args.image, args.dist, args.extra_sources, dev=False)
@@ -191,7 +74,7 @@ def cmd_build(args: argparse.Namespace) -> int:
             L.error("Could not run container")
             return rc
 
-    if not container_running(args.dist):
+    if not docker_container_running(args.dist):
         rc = docker_start(args.dist)
         if rc != 0:
             L.error("Could not start stopped container")
@@ -201,23 +84,23 @@ def cmd_build(args: argparse.Namespace) -> int:
     for t in args.targets:
         sys.stdout.write(LOG_BUILD_COMMAND.format(t.stem, args.dist, args.gbp))
         sys.stdout.flush()
-        rc = buildpackage(args.dist, t, args.extra_sources, args.gbp)
+        rc = dexec_buildpackage(args.dist, t, args.extra_sources, args.gbp)
         if rc != 0:
             L.error("Could not build package {}".format(t.stem))
             break
 
     if remove:
-        remove_container()
+        docker_remove_container()
 
     return 0
 
 
 def cmd_pull(args: argparse.Namespace) -> int:
-    return pull_images(args.image, args.dist)
+    return docker_pull_images(args.image, args.dist)
 
 
 def cmd_rm(args: argparse.Namespace) -> int:
-    remove_container()
+    docker_remove_container()
     return 0
 
 
@@ -228,7 +111,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 def cmd_shell(args: argparse.Namespace) -> int:
     remove = True
 
-    if container_exists():
+    if docker_container_exists():
         remove = False
     else:
         rc = docker_run(args.image, args.dist, args.extra_sources, dev=True)
@@ -236,7 +119,7 @@ def cmd_shell(args: argparse.Namespace) -> int:
             L.error("Could not run container")
             return rc
 
-    if not container_running(args.dist):
+    if not docker_container_running(args.dist):
         rc = docker_start(args.dist)
         if rc != 0:
             L.error("Could not start stopped container")
@@ -261,9 +144,138 @@ def cmd_shell(args: argparse.Namespace) -> int:
     rc = irun(cmd, quiet=False)
 
     if remove:
-        remove_container()
+        docker_remove_container()
 
     return rc
+
+
+### Docker functions ##################################################################
+
+
+def dexec_buildpackage(dist: str, target: Path, sources: str, gbp_options: str) -> int:
+    """Runs gbp buildpackage --git-export-dir=pool/{dist}-amd64/{target}
+
+    Container must already be started.
+    """
+    if not target.exists():
+        L.error("Build target `{}` does not exist".format(target))
+        return 1
+
+    cmd = [
+        "docker",
+        "exec",
+        "-it" if sys.stdin.isatty() else "-t",
+        "--user=build",
+        ENV_UID,
+        ENV_GID,
+        "-e=EXTRA_SOURCES={}".format(sources),
+        CONTAINER_NAME,
+        "build",
+        target.stem,
+    ]
+    cmd.extend(shlex.split(gbp_options))
+
+    return irun(cmd)
+
+
+def docker_container_exists() -> bool:
+    """Returns true if our dbp container can be inspected"""
+    return irun(["docker", "inspect", CONTAINER_NAME], quiet=True) == 0
+
+
+def docker_container_running(dist: str) -> bool:
+    """Returns true if our dbp container is running"""
+    proc = run(
+        ["docker", "inspect", CONTAINER_NAME, "--format={{.State.Running}}"],
+        stdout=PIPE,
+        stderr=DEVNULL,
+    )
+    return proc.returncode == 0 and "true" in str(proc.stdout)
+
+
+def docker_image_name(image: str, dist: str, dev: bool) -> str:
+    """Returns the Docker image to use, allowing for custom images."""
+    if ":" in image:
+        return image
+
+    if dev:
+        template = "{}:{}-{}-dev"
+    else:
+        template = "{}:{}-{}"
+
+    return template.format(image, IMAGE_VERSION, dist)
+
+
+def docker_pull_images(image: str, dist: str) -> int:
+    """Runs docker pull for both build and development images and returns the return code"""
+    cmd = ["docker", "pull", docker_image_name(image, dist, False)]
+    rc = irun(cmd)
+    if rc != 0:
+        return rc
+
+    cmd = ["docker", "pull", docker_image_name(image, dist, True)]
+    return irun(cmd)
+
+
+def docker_remove_container() -> int:
+    """Runs docker rm -f for the dbp container"""
+    if docker_container_exists():
+        cmd = ["docker", "rm", "-f", CONTAINER_NAME]
+        return irun(cmd, quiet=True)
+
+    L.info("Container does not exist.")
+    return 1
+
+
+def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
+    if docker_container_exists():
+        L.info("Container already exists")
+        return 0
+
+    cmd = [
+        "docker",
+        "run",
+        "-d",
+        "-it",
+        "--name={}".format(CONTAINER_NAME),
+        "--hostname={}".format(dist),
+        "-v={}:/mnt".format(Path.cwd()),
+        "-v={}/.gitconfig:/etc/skel/.gitconfig:ro".format(Path.home()),
+        ENV_UID,
+        ENV_GID,
+        "-e=EXTRA_SOURCES={}".format(sources),
+        docker_image_name(image, dist, dev),
+    ]
+
+    if not dev:
+        cmd.extend(["bash", "-l"])
+
+    rc = irun(cmd, quiet=True)
+    # wait for user to be created
+    sleep(1)
+    return rc
+
+
+def docker_start(dist: str) -> int:
+    """Runs docker start and returns the return code"""
+    cmd = ["docker", "start", CONTAINER_NAME]
+    return irun(cmd, quiet=True)
+
+
+### Utilities #########################################################################
+
+
+def irun(cmd: List[str], quiet=False) -> int:
+    """irun runs an interactive command."""
+    L.debug("Running {}".format(" ".join(cmd)))
+    if quiet:
+        proc = run(cmd, stdin=sys.stdin, stdout=DEVNULL, stderr=DEVNULL)
+    else:
+        proc = run(cmd, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
+    return proc.returncode
+
+
+### Main ##############################################################################
 
 
 def main() -> int:
