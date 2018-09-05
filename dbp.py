@@ -246,12 +246,14 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
     if gitconfig.exists():
         cmd.append("-v={}:/etc/skel/.gitconfig:ro".format(gitconfig))
 
-    cmd.extend([
-        ENV_UID,
-        ENV_GID,
-        "-e=EXTRA_SOURCES={}".format(sources),
-        docker_image_name(image, dist, dev),
-    ])
+    cmd.extend(
+        [
+            ENV_UID,
+            ENV_GID,
+            "-e=EXTRA_SOURCES={}".format(sources),
+            docker_image_name(image, dist, dev),
+        ]
+    )
 
     if not dev:
         cmd.extend(["bash", "-l"])
