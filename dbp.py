@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 
 import argparse
 import logging
@@ -22,6 +22,11 @@ CONTAINER_NAME = "{}-dbp-{}".format(os.getenv("USER"), Path.cwd().stem)
 
 ENV_UID = "-e=UID={}".format(os.getuid())
 ENV_GID = "-e=GID={}".format(os.getgid())
+ENV_TZ = "-e=TZ={}".format("/".join(Path("/etc/localtime").resolve().parts[-2:]))
+ENV_MAINT_NAME = "-e=DEBFULLNAME={}".format(os.getenv("DEBFULLNAME", "Dell EMC"))
+ENV_MAINT_MAIL = "-e=DEBEMAIL={}".format(
+    os.getenv("DEBEMAIL", "ops-dev@lists.openswitch.net")
+)
 
 LOG_BUILD_COMMAND = (
     '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}" {2}\n'
@@ -132,6 +137,9 @@ def cmd_shell(args: argparse.Namespace) -> int:
         "--user=build",
         ENV_UID,
         ENV_GID,
+        ENV_TZ,
+        ENV_MAINT_NAME,
+        ENV_MAINT_MAIL,
         "-e=EXTRA_SOURCES={}".format(args.extra_sources),
         CONTAINER_NAME,
         "bash",
@@ -168,6 +176,9 @@ def dexec_buildpackage(dist: str, target: Path, sources: str, gbp_options: str) 
         "--user=build",
         ENV_UID,
         ENV_GID,
+        ENV_TZ,
+        ENV_MAINT_NAME,
+        ENV_MAINT_MAIL,
         "-e=EXTRA_SOURCES={}".format(sources),
         CONTAINER_NAME,
         "build",
@@ -250,6 +261,9 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
         [
             ENV_UID,
             ENV_GID,
+            ENV_TZ,
+            ENV_MAINT_NAME,
+            ENV_MAINT_MAIL,
             "-e=EXTRA_SOURCES={}".format(sources),
             docker_image_name(image, dist, dev),
         ]
