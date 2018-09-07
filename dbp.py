@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.5.3"
+__version__ = "0.5.4"
 
 import argparse
 import logging
@@ -10,7 +10,7 @@ import shutil
 import sys
 
 from pathlib import Path
-from subprocess import run, PIPE, DEVNULL
+from subprocess import run, PIPE, DEVNULL, STDOUT
 from time import sleep
 from typing import List
 
@@ -41,6 +41,10 @@ L.addHandler(logging.NullHandler())
 
 
 def cmd_build(args: argparse.Namespace) -> int:
+    rc = docker_pull_images(args.image, args.dist, check_first=True)
+    if rc != 0:
+        return rc
+
     rc = 0
     remove = True
 
@@ -110,10 +114,18 @@ def cmd_rm(args: argparse.Namespace) -> int:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
+    rc = docker_pull_images(args.image, args.dist, check_first=True)
+    if rc != 0:
+        return rc
+
     return docker_run(args.image, args.dist, args.extra_sources, dev=True)
 
 
 def cmd_shell(args: argparse.Namespace) -> int:
+    rc = docker_pull_images(args.image, args.dist, check_first=True)
+    if rc != 0:
+        return rc
+
     remove = True
 
     if docker_container_exists():
@@ -217,8 +229,16 @@ def docker_image_name(image: str, dist: str, dev: bool) -> str:
     return template.format(image, IMAGE_VERSION, dist)
 
 
-def docker_pull_images(image: str, dist: str) -> int:
+def docker_pull_images(image: str, dist: str, check_first=False) -> int:
     """Runs docker pull for both build and development images and returns the return code"""
+    if check_first:
+        tag = docker_image_name(image, dist, dev=True)[len(image) + 1 :]
+        proc = run(["docker", "images"], stdout=PIPE, stderr=STDOUT)
+        if image in proc.stdout.decode("utf-8") and tag in proc.stdout.decode("utf-8"):
+            return 0
+
+    print("Pulling Docker image {}".format(image))
+
     cmd = ["docker", "pull", docker_image_name(image, dist, False)]
     rc = irun(cmd)
     if rc != 0:
