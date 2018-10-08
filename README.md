@@ -123,17 +123,16 @@ dbp rm
 
 ### Build multiple repositories
 
-dbp will build all repositories in the order specified.
+With no directories specified, dbp will build in build dependency order.
+
+```bash
+dbp build
+```
+
+Otherwise, directories can be manually specified.
 
 ```bash
 dbp build src new-src amazing-src
-```
-
-Supply a [build dependency graph](https://github.com/opx-infra/builddepends) on
-stdin for automatic dependency resolution.
-
-```bash
-bd | dbp build
 ```
 
 ### Pass additional `git-buildpackage` options
