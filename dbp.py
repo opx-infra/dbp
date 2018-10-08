@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.5.5"
+__version__ = "0.6.0"
 
 import argparse
 import logging
@@ -14,6 +14,7 @@ from subprocess import run, PIPE, DEVNULL, STDOUT
 from time import sleep
 from typing import List
 
+import controlgraph
 import networkx as nx
 
 IMAGE = "opxhub/gbp"
@@ -49,8 +50,10 @@ def cmd_build(args: argparse.Namespace) -> int:
     remove = True
 
     # generate build order through dfs on builddepends graph
-    if not sys.stdin.isatty() and not args.targets:
-        G = nx.drawing.nx_pydot.read_dot(sys.stdin)
+    if not args.targets:
+        dirs = [p for p in Path.cwd().iterdir() if p.is_dir()]
+        G = controlgraph.graph(controlgraph.parse_all_controlfiles(dirs))
+
         isolates = list(nx.isolates(G))
         if args.isolates_first:
             G.remove_nodes_from(isolates)
