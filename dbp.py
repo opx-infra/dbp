@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 
 import argparse
 import logging
@@ -239,6 +239,10 @@ def docker_image_name(image: str, dist: str, dev: bool) -> str:
 
 def docker_pull_images(image: str, dist: str, check_first=False) -> int:
     """Runs docker pull for both build and development images and returns the return code"""
+    if ":" in image:
+        # manually specified image tag, assume no pull needed
+        return 0
+
     if check_first:
         tag = docker_image_name(image, dist, dev=True)[len(image) + 1 :]
         proc = run(["docker", "images"], stdout=PIPE, stderr=STDOUT)
@@ -294,11 +298,10 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
             ENV_MAINT_MAIL,
             "-e=EXTRA_SOURCES={}".format(sources),
             docker_image_name(image, dist, dev),
+            "bash",
+            "-l",
         ]
     )
-
-    if not dev:
-        cmd.extend(["bash", "-l"])
 
     rc = irun(cmd, quiet=True)
     # wait for user to be created
