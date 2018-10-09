@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.7.1"
+__version__ = "18.10.0"
 
 import argparse
 import logging
