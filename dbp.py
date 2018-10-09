@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.6.2"
+__version__ = "0.7.0"
 
 import argparse
 import logging
@@ -32,6 +32,11 @@ ENV_MAINT_MAIL = "-e=DEBEMAIL={}".format(
 LOG_BUILD_COMMAND = (
     '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}" {2}\n'
 )
+
+OPX_DEFAULT_SOURCES = """\
+deb     http://deb.openswitch.net/{0} {1} opx opx-non-free
+deb-src http://deb.openswitch.net/{0} {1} opx
+"""
 
 
 L = logging.getLogger("dbp")
@@ -337,10 +342,16 @@ def main() -> int:
         "--dist", "-d", help="Debian distribution", default=os.getenv("DIST", "stretch")
     )
     parser.add_argument(
+        "--release", "-r", help="OPX release (default: unstable)", default="unstable"
+    )
+    parser.add_argument(
         "--extra-sources",
         "-e",
         help="Apt-style sources",
         default=os.getenv("EXTRA_SOURCES", ""),
+    )
+    parser.add_argument(
+        "--no-extra-sources", action="store_true", help="ignore any custom apt sources"
     )
     parser.add_argument("--image", "-i", help="Docker image to use", default=IMAGE)
 
@@ -412,6 +423,12 @@ def main() -> int:
             if s.exists():
                 args.extra_sources = s.read_text()
                 break
+
+    if args.extra_sources == "":
+        args.extra_sources = OPX_DEFAULT_SOURCES.format(args.dist, args.release)
+
+    if args.no_extra_sources:
+        args.extra_sources = ""
 
     if args.extra_sources != "":
         L.info("Loaded extra sources:\n{}".format(args.extra_sources))
