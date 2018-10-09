@@ -96,7 +96,11 @@ def cmd_build(args: argparse.Namespace) -> int:
             L.error("Could not start stopped container")
             return rc
 
-    sys.stdout.write("--- Building {} repositories\n".format(len(args.targets)))
+    sys.stdout.write(
+        "--- Building {} repositories: {}\n".format(
+            len(args.targets), " ".join([str(t) for t in args.targets])
+        )
+    )
     for t in args.targets:
         sys.stdout.write(LOG_BUILD_COMMAND.format(t.stem, args.dist, args.gbp))
         sys.stdout.flush()
