@@ -21,5 +21,3 @@ pip3 install dbp
 ## Docs
 
 Get started with the [documentation](https://opx-infra.github.io/dbp/).
-
-dbp runs [git-buildpackage](https://honk.sigxcpu.org/piki/projects/git-buildpackage/) in managed [gbp-docker](https://github.com/opx-infra/gbp-docker) containers, enabling compiler and dependency caches. dbp requires Python >=3.5.

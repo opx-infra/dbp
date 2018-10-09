@@ -5,8 +5,7 @@ Docker-buildpackage is a tool for building Debian packages.
 ## Prerequisites
 
 1. Python 3.5+
-2. Pip
-3. Docker
+1. Docker
 
 ## Install
 
