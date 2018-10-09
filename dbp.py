@@ -8,9 +8,8 @@ import os
 import shlex
 import shutil
 import sys
-
 from pathlib import Path
-from subprocess import run, PIPE, DEVNULL, STDOUT
+from subprocess import DEVNULL, PIPE, STDOUT, run
 from time import sleep
 from typing import List
 
