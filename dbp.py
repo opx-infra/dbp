@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "0.6.1"
+__version__ = "0.6.2"
 
 import argparse
 import logging
@@ -402,9 +402,12 @@ def main() -> int:
         L.error("Docker not found in PATH. Please install docker.")
         sys.exit(1)
 
-    # read sources from ./extra_sources and ~/.extra_sources
+    # read sources from ./extra_sources.list and ~/.extra_sources.list
     if args.extra_sources == "":
-        extra_sources = [Path("extra_sources"), Path.home() / ".extra_sources"]
+        extra_sources = [
+            Path("extra_sources.list"),
+            Path.home() / ".extra_sources.list",
+        ]
         for s in extra_sources:
             if s.exists():
                 args.extra_sources = s.read_text()
