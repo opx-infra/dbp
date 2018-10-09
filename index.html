@@ -40,7 +40,7 @@
     
     
       
-        <title>docker-buildpackage Documentation</title>
+        <title>Docker-buildpackage Documentation</title>
       
     
     
@@ -102,7 +102,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#docker-buildpackage" tabindex="1" class="md-skip">
+      <a href="#docker-buildpackage-documentation" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -111,7 +111,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="." title="docker-buildpackage Documentation" class="md-header-nav__button md-logo">
+        <a href="." title="Docker-buildpackage Documentation" class="md-header-nav__button md-logo">
           
             <i class="md-icon"></i>
           
@@ -125,10 +125,10 @@
           
             
               <span class="md-header-nav__topic">
-                docker-buildpackage Documentation
+                Docker-buildpackage Documentation
               </span>
               <span class="md-header-nav__topic">
-                docker-buildpackage
+                Home
               </span>
             
           
@@ -207,12 +207,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="." title="docker-buildpackage Documentation" class="md-nav__button md-logo">
+    <a href="." title="Docker-buildpackage Documentation" class="md-nav__button md-logo">
       
         <i class="md-icon"></i>
       
     </a>
-    docker-buildpackage Documentation
+    Docker-buildpackage Documentation
   </label>
   
     <div class="md-nav__source">
@@ -254,11 +254,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        docker-buildpackage
+        Home
       </label>
     
-    <a href="." title="docker-buildpackage" class="md-nav__link md-nav__link--active">
-      docker-buildpackage
+    <a href="." title="Home" class="md-nav__link md-nav__link--active">
+      Home
     </a>
     
       
@@ -272,8 +272,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#frequently-asked-questions" title="Frequently Asked Questions" class="md-nav__link">
-    Frequently Asked Questions
+  <a href="#prerequisites" title="Prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install" title="Install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" title="Usage" class="md-nav__link">
+    Usage
   </a>
   
 </li>
@@ -286,6 +300,30 @@
   
 </nav>
     
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="advanced/" title="Advanced Usage" class="md-nav__link">
+      Advanced Usage
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="faq/" title="FAQs" class="md-nav__link">
+      FAQs
+    </a>
   </li>
 
     
@@ -310,8 +348,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#frequently-asked-questions" title="Frequently Asked Questions" class="md-nav__link">
-    Frequently Asked Questions
+  <a href="#prerequisites" title="Prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install" title="Install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" title="Usage" class="md-nav__link">
+    Usage
   </a>
   
 </li>
@@ -335,24 +387,40 @@
                   <a href="https://github.com/opx-infra/dbp/edit/master/docs/index.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="docker-buildpackage">docker-buildpackage<a class="headerlink" href="#docker-buildpackage" title="Permanent link">&para;</a></h1>
-<p>OpenSwitch officially uses the opx_build script from the opx-build repository for building OPX Debian packages and the OPX installer. opx-build currently supports building Debian packages for both Debian Jessie and Debian Stretch.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>opx-build will be supported as long as OPX ships on Debian Stretch.</p>
-</div>
-<p>opx-build also uses pbuilder to build packages, which requires running Docker with full privileges (a security concern). Because of this, and the poor scaling as OPX grows to support Ubuntu and Debian Buster, EngOps is releasing a new build tool for OpenSwitch. Its called dbp, short for docker-buildpackage (a play on git-buildpackage, the tool used internally for building and packaging). dbp is a Python3.5+ package which supplies a Debian development environment in the form of a Docker image and a tool to resolve build dependencies and manage Docker containers.</p>
-<p>The OpenSwitch development environment comprises a Docker image and a small tool to manage the lifecycle of the container. git-buildpackage is used for building and packaging OpenSwitch applications. git-buildpackage can automate much of a developer's or maintainer's work when used effectively.</p>
-<ul>
-<li>The Docker image, opxhub/gbp, contains an opinionated Debian build and packaging setup. The source code contains our git-buildpackage configuration.</li>
-<li>The program, dbp, manages automatic custom source loading and container persistence. It can be installed with pip3 install dbp and documentation is here.</li>
-</ul>
-<h2 id="frequently-asked-questions">Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permanent link">&para;</a></h2>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wow</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;{a} {b}&quot;</span>
+                <h1 id="docker-buildpackage-documentation">Docker-buildpackage Documentation<a class="headerlink" href="#docker-buildpackage-documentation" title="Permanent link">&para;</a></h1>
+<p>Docker-buildpackage is a tool for building Debian packages.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Python 3.5+</li>
+<li>Pip</li>
+<li>Docker</li>
+</ol>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>pip3 install dbp
 </pre></div>
 </td></tr></table>
+
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<p>By default, <code class="codehilite">dbp</code> uses OpenSwitch apt sources<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>.</p>
+<ul>
+<li><code class="codehilite">dbp build</code> runs an out-of-tree build and stores build artifacts in <code class="codehilite">./pool/</code> for easy publishing</li>
+<li><code class="codehilite">dbp shell</code> launches an interactive bash shell in the development environment container</li>
+<li><code class="codehilite">dbp run</code> starts a persistent container in the background</li>
+<li><code class="codehilite">dbp rm</code> removes the persistent container from the background</li>
+</ul>
+<p>Both <code class="codehilite">dbp build</code> and <code class="codehilite">dbp shell</code> use temporary containers if no container exists.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="k">deb</span>     <span class="s">http://deb.openswitch.net/stretch</span> <span class="kp">unstable</span> <span class="kp">opx</span> <span class="kp">opx-non-free</span>
+<span class="k">deb-src</span> <span class="s">http://deb.openswitch.net/stretch</span> <span class="kp">unstable</span> <span class="kp">opx</span>
+</pre></div>
+</td></tr></table>&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
                 
                   
                 
@@ -369,6 +437,27 @@
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+        
+          <a href="advanced/" title="Advanced Usage" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Advanced Usage
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
