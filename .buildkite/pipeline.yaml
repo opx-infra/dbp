@@ -1,5 +1,6 @@
 steps:
   - label: ":python: format"
+    branches: "!v*.*.*"
     command: |
       echo "+++ Running formatter"
       /usr/local/bin/black --check dbp.py
@@ -15,3 +16,14 @@ steps:
       .venv/bin/flit install -s
       echo "+++ Deploying site"
       .venv/bin/mkdocs gh-deploy --force
+  - label: ":python: flit publish"
+    branches: "v*.*.*"
+    agents:
+      queue: "deploy"
+    command: |
+      echo "--- Installing flit"
+      rm -rf .venv
+      python3 -mvenv .venv
+      .venv/bin/pip install flit
+      echo "+++ Publishing to PyPi"
+      .venv/bin/flit publish
