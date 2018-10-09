@@ -1,20 +1,32 @@
-# docker-buildpackage
+# Docker-buildpackage Documentation
 
-OpenSwitch officially uses the opx_build script from the opx-build repository for building OPX Debian packages and the OPX installer. opx-build currently supports building Debian packages for both Debian Jessie and Debian Stretch.
+Docker-buildpackage is a tool for building Debian packages.
 
-!!! note
-    opx-build will be supported as long as OPX ships on Debian Stretch.
+## Prerequisites
 
-opx-build also uses pbuilder to build packages, which requires running Docker with full privileges (a security concern). Because of this, and the poor scaling as OPX grows to support Ubuntu and Debian Buster, EngOps is releasing a new build tool for OpenSwitch. Its called dbp, short for docker-buildpackage (a play on git-buildpackage, the tool used internally for building and packaging). dbp is a Python3.5+ package which supplies a Debian development environment in the form of a Docker image and a tool to resolve build dependencies and manage Docker containers.
+1. Python 3.5+
+2. Pip
+3. Docker
 
-The OpenSwitch development environment comprises a Docker image and a small tool to manage the lifecycle of the container. git-buildpackage is used for building and packaging OpenSwitch applications. git-buildpackage can automate much of a developer's or maintainer's work when used effectively.
+## Install
 
-* The Docker image, opxhub/gbp, contains an opinionated Debian build and packaging setup. The source code contains our git-buildpackage configuration.
-* The program, dbp, manages automatic custom source loading and container persistence. It can be installed with pip3 install dbp and documentation is here.
-
-## Frequently Asked Questions
-
-```python
-def wow(a: int, b: str) -> str:
-    return f"{a} {b}"
+```bash
+pip3 install dbp
 ```
+
+## Usage
+
+By default, `dbp` uses OpenSwitch apt sources[^1].
+
+* `dbp build` runs an out-of-tree build and stores build artifacts in `./pool/` for easy publishing
+* `dbp shell` launches an interactive bash shell in the development environment container
+* `dbp run` starts a persistent container in the background
+* `dbp rm` removes the persistent container from the background
+
+Both `dbp build` and `dbp shell` use temporary containers if no container exists.
+
+[^1]:
+    ```
+    deb     http://deb.openswitch.net/stretch unstable opx opx-non-free
+    deb-src http://deb.openswitch.net/stretch unstable opx
+    ```
