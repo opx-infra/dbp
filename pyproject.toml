@@ -16,5 +16,12 @@ requires = [
     "pydot",
 ]
 
+[tool.flit.metadata.requires-extra]
+doc = [
+    "mkdocs-material",
+    "pygments",
+    "pymdown-extensions",
+]
+
 [tool.flit.scripts]
 dbp = "dbp:main"
