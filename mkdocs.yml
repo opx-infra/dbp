@@ -15,6 +15,7 @@ theme:
   palette:
     primary: "deep orange"
     accent: "orange"
+  font: false
 repo_name: "opx-infra/dbp"
 repo_url: "https://github.com/opx-infra/dbp"
 extra:
