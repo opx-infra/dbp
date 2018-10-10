@@ -1,5 +1,12 @@
 # Docker-buildpackage and *opx-build*
 
+*dbp* maintains some backwards compatibility with *opx-build*. `opx_build` does not work without *pbuilder*, and `opx_run` does not work without Docker-in-Docker. The [*installer/3.0.0*](https://github.com/open-switch/opx-build/tree/installer/3.0.0) tag of *opx-build* is installed into `/usr/local/opx-build` and `/usr/local/opx-build/scripts` has been added to the `$PATH`.
+
+```bash
+$ dbp shell -c 'which opx_rel_pkgasm.py'
+/usr/local/opx-build/scripts/opx_rel_pkgasm.py
+```
+
 ## Commands
 
 **Build a single package**
