@@ -308,10 +308,70 @@
       
 
 
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Commands
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        Commands
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
   <li class="md-nav__item">
-    <a href="advanced/" title="Advanced Usage" class="md-nav__link">
-      Advanced Usage
+    <a href="commands/build/" title="Build" class="md-nav__link">
+      Build
     </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="commands/shell/" title="Shell" class="md-nav__link">
+      Shell
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="commands/run/" title="Run" class="md-nav__link">
+      Run
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="commands/rm/" title="Rm" class="md-nav__link">
+      Rm
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
   </li>
 
     
@@ -400,14 +460,14 @@
 </td></tr></table>
 
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<p>By default, <code class="codehilite">dbp</code> uses OpenSwitch apt sources<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>.</p>
 <ul>
-<li><code class="codehilite">dbp build</code> runs an out-of-tree build and stores build artifacts in <code class="codehilite">./pool/</code> for easy publishing</li>
-<li><code class="codehilite">dbp shell</code> launches an interactive bash shell in the development environment container</li>
-<li><code class="codehilite">dbp run</code> starts a persistent container in the background</li>
-<li><code class="codehilite">dbp rm</code> removes the persistent container from the background</li>
+<li><a href="commands/build/"><em>dbp build</em></a> runs an out-of-tree build and stores build artifacts in <code class="codehilite">./pool/</code> for easy publishing</li>
+<li><a href="commands/shell/"><em>dbp shell</em></a> launches an interactive bash shell in the development environment container</li>
+<li><a href="commands/run/"><em>dbp run</em></a> starts a persistent container in the background</li>
+<li><a href="commands/rm/"><em>dbp rm</em></a> removes the persistent container from the background</li>
 </ul>
-<p>Both <code class="codehilite">dbp build</code> and <code class="codehilite">dbp shell</code> use temporary containers if no container exists.</p>
+<p><em>dbp</em> uses <a href="http://deb.openswitch.net">OpenSwitch apt sources</a><sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup> if no other sources are specified.
+Both <em>dbp build</em> and <em>dbp shell</em> use temporary containers if no container exists.</p>
 <div class="footnote">
 <hr />
 <ol>
@@ -441,13 +501,13 @@
       <nav class="md-footer-nav__inner md-grid">
         
         
-          <a href="advanced/" title="Advanced Usage" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="commands/build/" title="Build" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Advanced Usage
+                Build
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
