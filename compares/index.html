@@ -442,6 +442,13 @@
                 
                 
                 <h1 id="docker-buildpackage-and-opx-build">Docker-buildpackage and <em>opx-build</em><a class="headerlink" href="#docker-buildpackage-and-opx-build" title="Permanent link">&para;</a></h1>
+<p><em>dbp</em> maintains some backwards compatibility with <em>opx-build</em>. <code class="codehilite">opx_build</code> does not work without <em>pbuilder</em>, and <code class="codehilite">opx_run</code> does not work without Docker-in-Docker. The <a href="https://github.com/open-switch/opx-build/tree/installer/3.0.0"><em>installer/3.0.0</em></a> tag of <em>opx-build</em> is installed into <code class="codehilite">/usr/local/opx-build</code> and <code class="codehilite">/usr/local/opx-build/scripts</code> has been added to the <code class="codehilite">$PATH</code>.</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp shell -c <span class="s1">&#39;which opx_rel_pkgasm.py&#39;</span>
+/usr/local/opx-build/scripts/opx_rel_pkgasm.py
+</pre></div>
+</td></tr></table>
+
 <h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
 <p><strong>Build a single package</strong></p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
