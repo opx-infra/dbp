@@ -22,6 +22,11 @@ doc = [
     "pygments",
     "pymdown-extensions",
 ]
+test = [
+    "coverage",
+    "pytest",
+    "pytest-cov",
+]
 
 [tool.flit.scripts]
 dbp = "dbp:main"

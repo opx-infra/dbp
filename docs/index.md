@@ -15,17 +15,25 @@ Docker-buildpackage is a tool for building Debian packages.
 ## Install
 
 ```bash
-pip3 install --upgrade dbp
+$ pip3 install --upgrade dbp
 ```
 
 To avoid installing into the global namespace, install into a virtualenv.
 
 ```bash
-python3 -mvenv ~/.dbp && ~/.dbp/bin/pip install dbp
-export PATH=$PATH:$HOME/.dbp/bin
+$ python3 -mvenv ~/.dbp && ~/.dbp/bin/pip install dbp
+$ export PATH=$PATH:$HOME/.dbp/bin
 ```
 
 ## Usage
+
+1. Clone any number of OpenSwitch repositories
+2. Build!
+
+```bash
+$ git clone https://github.com/open-switch/opx-logging
+$ dbp build
+```
 
 * [*dbp build*](commands/build.md) runs an out-of-tree build and stores build artifacts in `./pool/` for easy publishing
 * [*dbp shell*](commands/shell.md) launches an interactive bash shell in the development environment container
@@ -40,10 +48,19 @@ export PATH=$PATH:$HOME/.dbp/bin
     ```
     if no other sources are specified.
 
+## OpenSwitch Installer
+
 *dbp* can be used to build an OpenSwitch installer.
 
 ```bash
 $ git clone https://github.com/open-switch/opx-onie-installer
+$ dbp shell -c 'opx_rel_pkgasm.py \
+  -b opx-onie-installer/release_bp/OPX_dell_base_stretch.xml'
+```
+
+Usage:
+
+```bash
 $ dbp shell -c 'opx_rel_pkgasm.py --help'
 usage: opx_rel_pkgasm.py [-h] -b B [-n N] [-s S] [-v V]
                          [--build-info BUILD_INFO] [--build-url BUILD_URL]
@@ -62,7 +79,4 @@ optional arguments:
   --vcs-url VCS_URL
   --vcs-revision VCS_REVISION
   -d DIST, --dist DIST  Distribution to build
-
-$ dbp shell -c 'opx_rel_pkgasm.py \
-  -b opx-onie-installer/release_bp/OPX_dell_base_stretch.xml'
 ```

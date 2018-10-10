@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "18.10.1"
+__version__ = "18.10.2"
 
 import argparse
 import logging
@@ -104,7 +104,7 @@ def cmd_build(args: argparse.Namespace) -> int:
     for t in args.targets:
         sys.stdout.write(LOG_BUILD_COMMAND.format(t.stem, args.dist, args.gbp))
         sys.stdout.flush()
-        rc = dexec_buildpackage(args.dist, t, args.extra_sources, args.gbp)
+        rc = dexec_buildpackage(args.dist, t, args.extra_sources, args.gbp, args.debug)
         if rc != 0:
             L.error("Could not build package {}".format(t.stem))
             break
@@ -158,6 +158,7 @@ def cmd_shell(args: argparse.Namespace) -> int:
         "exec",
         "-it",
         "--user=build",
+        deb_build_options_string(args.debug, 0),
         ENV_UID,
         ENV_GID,
         ENV_TZ,
@@ -183,7 +184,9 @@ def cmd_shell(args: argparse.Namespace) -> int:
 ### Docker functions ##################################################################
 
 
-def dexec_buildpackage(dist: str, target: Path, sources: str, gbp_options: str) -> int:
+def dexec_buildpackage(
+    dist: str, target: Path, sources: str, gbp_options: str, debug=False
+) -> int:
     """Runs gbp buildpackage --git-export-dir=pool/{dist}-amd64/{target}
 
     Container must already be started.
@@ -197,6 +200,7 @@ def dexec_buildpackage(dist: str, target: Path, sources: str, gbp_options: str) 
         "exec",
         "-it" if sys.stdin.isatty() else "-t",
         "--user=build",
+        deb_build_options_string(debug, 0),
         ENV_UID,
         ENV_GID,
         ENV_TZ,
@@ -331,6 +335,18 @@ def irun(cmd: List[str], quiet=False) -> int:
     return proc.returncode
 
 
+def deb_build_options_string(debug: bool, parallel=0) -> str:
+    opts = []
+
+    if debug:
+        opts.extend(["nostrip", "noopt", "debug"])
+
+    if parallel > 0:
+        opts.append("parallel={}".format(parallel))
+
+    return "-e=DEB_BUILD_OPTIONS={}".format(" ".join(opts))
+
+
 ### Main ##############################################################################
 
 
@@ -343,6 +359,9 @@ def main() -> int:
     )
     parser.add_argument(
         "--verbose", "-v", help="-v for info, -vv for debug", action="count", default=0
+    )
+    parser.add_argument(
+        "--debug", help="Set nostrip, noopt, debug", action="store_true"
     )
     parser.add_argument(
         "--dist", "-d", help="Debian distribution", default=os.getenv("DIST", "stretch")

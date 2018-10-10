@@ -5,7 +5,7 @@ Out of the box, *dbp build* reads all directories and builds a graph of Debian b
 ## Build a single package in a non-persistent container
 
 ```bash
-dbp build src/
+$ dbp build src/
 ```
 
 * Builds artifacts for the default Debian distribution
@@ -19,25 +19,65 @@ dbp build src/
 With no directories specified, dbp will build in build dependency order.
 
 ```bash
-dbp build
+$ dbp build
 ```
 
 Otherwise, directories can be manually specified.
 
 ```bash
-dbp build src new-src amazing-src
+$ dbp build src new-src amazing-src
+```
+
+## Building unstripped and unoptimized binaries
+
+Use the `--debug` flag with *dbp build* or *dbp shell*. If already in a shell session, just run `export DEB_BUILD_OPTIONS='nostrip noopt debug'`. It works with `build`, `gbp buildpackage`, and even `fakeroot debian/rules binary`.
+
+Without `--debug`:
+```bash hl_lines="3 4"
+build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging | awk '{print $5, $9}' | column -t
+13K   libopx-logging-dev_2.1.1_amd64.deb
+85K   libopx-logging1-dbgsym_2.1.1_amd64.deb
+10K   libopx-logging1_2.1.1_amd64.deb
+905   opx-logging_2.1.1.dsc
+12K   opx-logging_2.1.1.tar.gz
+28K   opx-logging_2.1.1_amd64.build
+6.9K  opx-logging_2.1.1_amd64.buildinfo
+3.1K  opx-logging_2.1.1_amd64.changes
+3.6K  opx-logging_2.1.1_amd64.deb
+12K   python-opx-logging-dbgsym_2.1.1_amd64.deb
+4.2K  python-opx-logging_2.1.1_amd64.deb
+```
+
+With `--debug`:
+```bash hl_lines="9"
+$ dbp --debug shell
+
+build@stretch:/mnt$ echo "Options: $DEB_BUILD_OPTIONS"
+Options: nostrip noopt debug
+
+build@stretch:/mnt$ build opx-logging
+build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging | awk '{print $5, $9}' | column -t
+93K   libopx-logging-dev_2.1.1_amd64.deb
+85K   libopx-logging1_2.1.1_amd64.deb
+905   opx-logging_2.1.1.dsc
+12K   opx-logging_2.1.1.tar.gz
+28K   opx-logging_2.1.1_amd64.build
+6.4K  opx-logging_2.1.1_amd64.buildinfo
+2.6K  opx-logging_2.1.1_amd64.changes
+3.6K  opx-logging_2.1.1_amd64.deb
+12K   python-opx-logging_2.1.1_amd64.deb
 ```
 
 ## Build against an OPX release
 
 ```bash
-dbp --release 3.0.0 build
+$ dbp --release 3.0.0 build
 ```
 
 ## Build against a Debian distribution
 
 ```bash
-dbp --dist bionic build
+$ dbp --dist bionic build
 ```
 
 ## Build against extra apt sources
@@ -72,26 +112,7 @@ If no sources are found, the default OPX sources are used.
 Also excludes default OPX sources. Useful for ensuring a complete local build is possible.
 
 ```bash
-dbp --no-extra-sources build
-```
-
-## Building unstripped and unoptimized binaries
-
-Set `DEB_BUILD_OPTIONS='nostrip noopt debug'`. You can use it with `build`, `gbp buildpackage`, and even `fakeroot debian/rules binary`.
-
-```bash
-$ dbp shell
-build@stretch:/mnt$ DEB_BUILD_OPTIONS='nostrip noopt debug' build opx-logging
-build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging/python-opx-logging*
--rw-r--r-- 1 build dialout  12K Aug 29 22:03 pool/stretch-amd64/opx-logging/python-opx-logging_2.1.1_amd64.deb
-
-# Normally you'd get this
-build@stretch:/mnt/opx-logging$ cd ..
-build@stretch:/mnt$ rm -rf pool/
-build@stretch:/mnt$ build opx-logging
-build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging/python-opx-logging*
--rw-r--r-- 1 build dialout  12K Aug 29 22:07 pool/stretch-amd64/opx-logging/python-opx-logging-dbgsym_2.1.1_amd64.deb
--rw-r--r-- 1 build dialout 4.2K Aug 29 22:07 pool/stretch-amd64/opx-logging/python-opx-logging_2.1.1_amd64.deb
+$ dbp --no-extra-sources build
 ```
 
 ## Pass additional `git-buildpackage` options
