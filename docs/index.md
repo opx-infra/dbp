@@ -22,7 +22,7 @@ To avoid installing into the global namespace, install into a virtualenv.
 
 ```bash
 python3 -mvenv ~/.dbp && ~/.dbp/bin/pip install dbp
-export PATH=$PATH:$HOME/.dbp
+export PATH=$PATH:$HOME/.dbp/bin
 ```
 
 ## Usage
