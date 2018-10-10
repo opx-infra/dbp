@@ -6,6 +6,10 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.10.1] - 2018/10/10
+### Added
+- OPX Installer build support (see [docs](https://opx-infra.github.io/dbp/))
+
 ## [18.10.0] - 2018/10/09
 ### Added
 - Changelog
@@ -34,7 +38,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Removed
 - [Builddepends](https://github.com/opx-infra/builddepends) support
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.0...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.1...HEAD
+[18.10.1]: https://github.com/opx-infra/dbp/compare/v18.10.0...v18.10.1
 [18.10.0]: https://github.com/opx-infra/dbp/compare/v0.7.1...v18.10.0
 [0.7.1]: https://github.com/opx-infra/dbp/compare/v0.6.1...v0.7.1
 [0.6.1]: https://github.com/opx-infra/dbp/compare/v0.6.0...v0.6.1

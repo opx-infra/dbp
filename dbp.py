@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "18.10.0"
+__version__ = "18.10.1"
 
 import argparse
 import logging
@@ -17,7 +17,7 @@ import controlgraph
 import networkx as nx
 
 IMAGE = "opxhub/gbp"
-IMAGE_VERSION = "v1.0.5"
+IMAGE_VERSION = "v1.1.0"
 CONTAINER_NAME = "{}-dbp-{}".format(os.getenv("USER"), Path.cwd().stem)
 
 ENV_UID = "-e=UID={}".format(os.getuid())
