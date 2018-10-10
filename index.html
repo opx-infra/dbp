@@ -464,7 +464,14 @@
 <li>Docker</li>
 </ol>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>pip3 install dbp
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>pip3 install --upgrade dbp
+</pre></div>
+</td></tr></table>
+
+<p>To avoid installing into the global namespace, install into a virtualenv.</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>python3 -mvenv ~/.dbp <span class="o">&amp;&amp;</span> ~/.dbp/bin/pip install dbp
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HOME</span>/.dbp
 </pre></div>
 </td></tr></table>
 
@@ -475,20 +482,62 @@
 <li><a href="commands/run/"><em>dbp run</em></a> starts a persistent container in the background</li>
 <li><a href="commands/rm/"><em>dbp rm</em></a> removes the persistent container from the background</li>
 </ul>
-<p><em>dbp</em> uses <a href="http://deb.openswitch.net">OpenSwitch apt sources</a><sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup> if no other sources are specified.
-Both <em>dbp build</em> and <em>dbp shell</em> use temporary containers if no container exists.</p>
-<div class="footnote">
-<hr />
-<ol>
-<li id="fn:1">
-<p><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><em>dbp</em> uses <a href="http://deb.openswitch.net">OpenSwitch apt sources</a>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="k">deb</span>     <span class="s">http://deb.openswitch.net/stretch</span> <span class="kp">unstable</span> <span class="kp">opx</span> <span class="kp">opx-non-free</span>
 <span class="k">deb-src</span> <span class="s">http://deb.openswitch.net/stretch</span> <span class="kp">unstable</span> <span class="kp">opx</span>
 </pre></div>
-</td></tr></table>&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
-</li>
-</ol>
+</td></tr></table>
+if no other sources are specified.</p>
 </div>
+<p><em>dbp</em> can be used to build an OpenSwitch installer.</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ git clone https://github.com/open-switch/opx-onie-installer
+$ dbp shell -c <span class="s1">&#39;opx_rel_pkgasm.py --help&#39;</span>
+usage: opx_rel_pkgasm.py <span class="o">[</span>-h<span class="o">]</span> -b B <span class="o">[</span>-n N<span class="o">]</span> <span class="o">[</span>-s S<span class="o">]</span> <span class="o">[</span>-v V<span class="o">]</span>
+                         <span class="o">[</span>--build-info BUILD_INFO<span class="o">]</span> <span class="o">[</span>--build-url BUILD_URL<span class="o">]</span>
+                         <span class="o">[</span>--vcs-url VCS_URL<span class="o">]</span> <span class="o">[</span>--vcs-revision VCS_REVISION<span class="o">]</span>
+                         <span class="o">[</span>-d DIST<span class="o">]</span>
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -b B                  specify location of release blue-print
+  -n N                  specify build number of release
+  -s S                  specify release number suffix
+  -v V                  specify verbosity level
+  --build-info BUILD_INFO
+                        specify location of build-info json output
+  --build-url BUILD_URL
+  --vcs-url VCS_URL
+  --vcs-revision VCS_REVISION
+  -d DIST, --dist DIST  Distribution to build
+
+$ dbp shell -c <span class="s1">&#39;opx_rel_pkgasm.py \</span>
+<span class="s1">  -b opx-onie-installer/release_bp/OPX_dell_base_stretch.xml&#39;</span>
+</pre></div>
+</td></tr></table>
                 
                   
                 
