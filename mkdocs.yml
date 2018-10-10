@@ -3,6 +3,7 @@ site_description: "A build and packaging tool and environment for OpenSwitch"
 site_author: "OpenSwitch"
 nav:
   - Home: index.md
+  - Changelog: changelog.md
   - Comparison: compares.md
   - Commands:
     - "Build": "commands/build.md"

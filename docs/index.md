@@ -4,6 +4,9 @@ Docker-buildpackage is a tool for building Debian packages.
 
 [See how it compares with *opx-build*.](compares.md)
 
+!!! tip
+    Check out the [changelog](changelog.md).
+
 ## Prerequisites
 
 1. Python 3.5+
