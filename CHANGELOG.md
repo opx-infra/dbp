@@ -12,7 +12,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [18.10.1] - 2018/10/10
 ### Added
-- OPX Installer build support (see [docs](https://opx-infra.github.io/dbp/))
+- OPX Installer build support (see [docs](https://opx-infra.github.io/dbp/#openswitch-installer))
 
 ## [18.10.0] - 2018/10/09
 ### Added
@@ -42,6 +42,62 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Removed
 - [Builddepends](https://github.com/opx-infra/builddepends) support
 
+## [0.5.5] - 2018/09/12
+### Changed
+- Upgrade gbp-docker to 1.0.3
+
+## [0.5.4] - 2018/09/07
+### Added
+- Progress bar when pulling Docker images
+
+## [0.5.3] - 2018/09/06
+### Fixed
+- Missing timezone and DEB email/name in container
+
+## [0.5.2] - 2018/09/05
+### Changed
+- Upgrade gbp-docker to 1.0.1
+
+## [0.5.1] - 2018/09/05
+### Fixed
+- Exception when `~/.gitconfig` is missing
+
+## [0.5.0] - 2018/09/04
+### Added
+- Options for filtering isolated repositories when building
+
+## [0.4.4] - 2018/09/04
+### Fixed
+- Git-buildpackage option parsing
+
+## [0.4.3] - 2018/09/04
+### Fixed
+- Missing shell environment pieces due to non-login shell
+
+## [0.4.2] - 2018/09/04
+### Fixed
+- Duplicate `bash -l` in container command
+
+## [0.4.1] - 2018/09/03
+### Fixed
+- Missing user on container start
+
+## [0.4.0] - 2018/09/02
+### Added
+- Support for `builddepends` input
+
+## [0.3.3] - 2018/08/29
+### Fixed
+- Noisy output when starting/removing containers
+
+## [0.3.2] - 2018/08/29
+### Fixed
+- Missing bash arguments
+
+## [0.3.1] - 2018/08/29
+### Added
+- Everything
+
 [Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.2...HEAD
 [18.10.2]: https://github.com/opx-infra/dbp/compare/v18.10.1...v18.10.2
 [18.10.1]: https://github.com/opx-infra/dbp/compare/v18.10.0...v18.10.1
@@ -49,3 +105,18 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 [0.7.1]: https://github.com/opx-infra/dbp/compare/v0.6.1...v0.7.1
 [0.6.1]: https://github.com/opx-infra/dbp/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/opx-infra/dbp/compare/v0.5.5...v0.6.0
+[0.5.5]: https://github.com/opx-infra/dbp/compare/v0.5.4...v0.5.5
+[0.5.4]: https://github.com/opx-infra/dbp/compare/v0.5.3...v0.5.4
+[0.5.3]: https://github.com/opx-infra/dbp/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/opx-infra/dbp/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/opx-infra/dbp/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/opx-infra/dbp/compare/v0.4.4...v0.5.0
+[0.4.4]: https://github.com/opx-infra/dbp/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/opx-infra/dbp/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/opx-infra/dbp/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/opx-infra/dbp/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/opx-infra/dbp/compare/v0.3.3...v0.4.0
+[0.3.3]: https://github.com/opx-infra/dbp/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/opx-infra/dbp/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/opx-infra/dbp/compare/40462d74eaff1cf85f52c497372be5e37d43e564...v0.3.1
+
