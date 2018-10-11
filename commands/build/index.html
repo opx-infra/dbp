@@ -339,6 +339,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#building-unstripped-and-unoptimized-binaries" title="Building unstripped and unoptimized binaries" class="md-nav__link">
+    Building unstripped and unoptimized binaries
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build-against-an-opx-release" title="Build against an OPX release" class="md-nav__link">
     Build against an OPX release
   </a>
@@ -362,13 +369,6 @@
         <li class="md-nav__item">
   <a href="#exclude-custom-apt-sources" title="Exclude custom apt sources" class="md-nav__link">
     Exclude custom apt sources
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#building-unstripped-and-unoptimized-binaries" title="Building unstripped and unoptimized binaries" class="md-nav__link">
-    Building unstripped and unoptimized binaries
   </a>
   
 </li>
@@ -486,6 +486,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#building-unstripped-and-unoptimized-binaries" title="Building unstripped and unoptimized binaries" class="md-nav__link">
+    Building unstripped and unoptimized binaries
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build-against-an-opx-release" title="Build against an OPX release" class="md-nav__link">
     Build against an OPX release
   </a>
@@ -509,13 +516,6 @@
         <li class="md-nav__item">
   <a href="#exclude-custom-apt-sources" title="Exclude custom apt sources" class="md-nav__link">
     Exclude custom apt sources
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#building-unstripped-and-unoptimized-binaries" title="Building unstripped and unoptimized binaries" class="md-nav__link">
-    Building unstripped and unoptimized binaries
   </a>
   
 </li>
@@ -556,7 +556,7 @@
                 <h1 id="commands-dbp-build">Commands: <em>dbp build</em><a class="headerlink" href="#commands-dbp-build" title="Permanent link">&para;</a></h1>
 <p>Out of the box, <em>dbp build</em> reads all directories and builds a graph of Debian build dependencies, which it traverses while building each Debian package. These packages are sorted into a pool and used for subsequent builds and ultimately publishing.</p>
 <h2 id="build-a-single-package-in-a-non-persistent-container">Build a single package in a non-persistent container<a class="headerlink" href="#build-a-single-package-in-a-non-persistent-container" title="Permanent link">&para;</a></h2>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>dbp build src/
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp build src/
 </pre></div>
 </td></tr></table>
 
@@ -569,22 +569,84 @@
 </ul>
 <h2 id="build-multiple-repositories">Build multiple repositories<a class="headerlink" href="#build-multiple-repositories" title="Permanent link">&para;</a></h2>
 <p>With no directories specified, dbp will build in build dependency order.</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>dbp build
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp build
 </pre></div>
 </td></tr></table>
 
 <p>Otherwise, directories can be manually specified.</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>dbp build src new-src amazing-src
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp build src new-src amazing-src
 </pre></div>
 </td></tr></table>
 
+<h2 id="building-unstripped-and-unoptimized-binaries">Building unstripped and unoptimized binaries<a class="headerlink" href="#building-unstripped-and-unoptimized-binaries" title="Permanent link">&para;</a></h2>
+<p>Use the <code class="codehilite">--debug</code> flag with <em>dbp build</em> or <em>dbp shell</em>. If already in a shell session, just run <code class="codehilite">export DEB_BUILD_OPTIONS=&#39;nostrip noopt debug&#39;</code>. It works with <code class="codehilite">build</code>, <code class="codehilite">gbp buildpackage</code>, and even <code class="codehilite">fakeroot debian/rules binary</code>.</p>
+<p>Without <code class="codehilite">--debug</code>:
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging <span class="p">|</span> awk <span class="s1">&#39;{print $5, $9}&#39;</span> <span class="p">|</span> column -t
+13K   libopx-logging-dev_2.1.1_amd64.deb
+<span class="hll">85K   libopx-logging1-dbgsym_2.1.1_amd64.deb
+</span><span class="hll">10K   libopx-logging1_2.1.1_amd64.deb
+</span><span class="m">905</span>   opx-logging_2.1.1.dsc
+12K   opx-logging_2.1.1.tar.gz
+28K   opx-logging_2.1.1_amd64.build
+<span class="m">6</span>.9K  opx-logging_2.1.1_amd64.buildinfo
+<span class="m">3</span>.1K  opx-logging_2.1.1_amd64.changes
+<span class="m">3</span>.6K  opx-logging_2.1.1_amd64.deb
+12K   python-opx-logging-dbgsym_2.1.1_amd64.deb
+<span class="m">4</span>.2K  python-opx-logging_2.1.1_amd64.deb
+</pre></div>
+</td></tr></table></p>
+<p>With <code class="codehilite">--debug</code>:
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp --debug shell
+
+build@stretch:/mnt$ <span class="nb">echo</span> <span class="s2">&quot;Options: </span><span class="nv">$DEB_BUILD_OPTIONS</span><span class="s2">&quot;</span>
+Options: nostrip noopt debug
+
+build@stretch:/mnt$ build opx-logging
+build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging <span class="p">|</span> awk <span class="s1">&#39;{print $5, $9}&#39;</span> <span class="p">|</span> column -t
+93K   libopx-logging-dev_2.1.1_amd64.deb
+<span class="hll">85K   libopx-logging1_2.1.1_amd64.deb
+</span><span class="m">905</span>   opx-logging_2.1.1.dsc
+12K   opx-logging_2.1.1.tar.gz
+28K   opx-logging_2.1.1_amd64.build
+<span class="m">6</span>.4K  opx-logging_2.1.1_amd64.buildinfo
+<span class="m">2</span>.6K  opx-logging_2.1.1_amd64.changes
+<span class="m">3</span>.6K  opx-logging_2.1.1_amd64.deb
+12K   python-opx-logging_2.1.1_amd64.deb
+</pre></div>
+</td></tr></table></p>
 <h2 id="build-against-an-opx-release">Build against an OPX release<a class="headerlink" href="#build-against-an-opx-release" title="Permanent link">&para;</a></h2>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>dbp --release <span class="m">3</span>.0.0 build
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp --release <span class="m">3</span>.0.0 build
 </pre></div>
 </td></tr></table>
 
 <h2 id="build-against-a-debian-distribution">Build against a Debian distribution<a class="headerlink" href="#build-against-a-debian-distribution" title="Permanent link">&para;</a></h2>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>dbp --dist bionic build
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp --dist bionic build
 </pre></div>
 </td></tr></table>
 
@@ -617,35 +679,7 @@ deb-src http://deb.openswitch.net/stretch stable opx
 <p>If no sources are found, the default OPX sources are used.</p>
 <h2 id="exclude-custom-apt-sources">Exclude custom apt sources<a class="headerlink" href="#exclude-custom-apt-sources" title="Permanent link">&para;</a></h2>
 <p>Also excludes default OPX sources. Useful for ensuring a complete local build is possible.</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>dbp --no-extra-sources build
-</pre></div>
-</td></tr></table>
-
-<h2 id="building-unstripped-and-unoptimized-binaries">Building unstripped and unoptimized binaries<a class="headerlink" href="#building-unstripped-and-unoptimized-binaries" title="Permanent link">&para;</a></h2>
-<p>Set <code class="codehilite">DEB_BUILD_OPTIONS=&#39;nostrip noopt debug&#39;</code>. You can use it with <code class="codehilite">build</code>, <code class="codehilite">gbp buildpackage</code>, and even <code class="codehilite">fakeroot debian/rules binary</code>.</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp shell
-build@stretch:/mnt$ <span class="nv">DEB_BUILD_OPTIONS</span><span class="o">=</span><span class="s1">&#39;nostrip noopt debug&#39;</span> build opx-logging
-build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging/python-opx-logging*
--rw-r--r-- <span class="m">1</span> build dialout  12K Aug <span class="m">29</span> <span class="m">22</span>:03 pool/stretch-amd64/opx-logging/python-opx-logging_2.1.1_amd64.deb
-
-<span class="c1"># Normally you&#39;d get this</span>
-build@stretch:/mnt/opx-logging$ <span class="nb">cd</span> ..
-build@stretch:/mnt$ rm -rf pool/
-build@stretch:/mnt$ build opx-logging
-build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging/python-opx-logging*
--rw-r--r-- <span class="m">1</span> build dialout  12K Aug <span class="m">29</span> <span class="m">22</span>:07 pool/stretch-amd64/opx-logging/python-opx-logging-dbgsym_2.1.1_amd64.deb
--rw-r--r-- <span class="m">1</span> build dialout <span class="m">4</span>.2K Aug <span class="m">29</span> <span class="m">22</span>:07 pool/stretch-amd64/opx-logging/python-opx-logging_2.1.1_amd64.deb
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp --no-extra-sources build
 </pre></div>
 </td></tr></table>
 
