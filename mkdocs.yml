@@ -1,6 +1,7 @@
 site_name: "Docker-buildpackage Documentation"
 site_description: "A build and packaging tool and environment for OpenSwitch"
 site_author: "OpenSwitch"
+edit_uri: ""
 nav:
   - Home: index.md
   - Changelog: changelog.md
@@ -16,7 +17,7 @@ theme:
   name: "material"
   palette:
     primary: "deep orange"
-    accent: "orange"
+    accent: "deep orange"
   font: false
 repo_name: "opx-infra/dbp"
 repo_url: "https://github.com/opx-infra/dbp"
