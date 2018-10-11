@@ -292,15 +292,29 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#commands" title="Commands" class="md-nav__link">
-    Commands
+  <a href="#on-opx-build-and-build-isolation" title="On opx-build and build isolation" class="md-nav__link">
+    On opx-build and build isolation
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#speed" title="Speed" class="md-nav__link">
-    Speed
+  <a href="#on-opx-build-and-container-persistence" title="On opx-build and container persistence" class="md-nav__link">
+    On opx-build and container persistence
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dbp-and-backwards-compatibility" title="dbp and backwards compatibility" class="md-nav__link">
+    dbp and backwards compatibility
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-comparison" title="Command Comparison" class="md-nav__link">
+    Command Comparison
   </a>
   
 </li>
@@ -421,15 +435,29 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#commands" title="Commands" class="md-nav__link">
-    Commands
+  <a href="#on-opx-build-and-build-isolation" title="On opx-build and build isolation" class="md-nav__link">
+    On opx-build and build isolation
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#speed" title="Speed" class="md-nav__link">
-    Speed
+  <a href="#on-opx-build-and-container-persistence" title="On opx-build and container persistence" class="md-nav__link">
+    On opx-build and container persistence
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dbp-and-backwards-compatibility" title="dbp and backwards compatibility" class="md-nav__link">
+    dbp and backwards compatibility
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-comparison" title="Command Comparison" class="md-nav__link">
+    Command Comparison
   </a>
   
 </li>
@@ -450,18 +478,25 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/opx-infra/dbp/edit/master/docs/compares.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/opx-infra/dbp/edit/master/docs/comparison.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <h1 id="docker-buildpackage-and-opx-build">Docker-buildpackage and <em>opx-build</em><a class="headerlink" href="#docker-buildpackage-and-opx-build" title="Permanent link">&para;</a></h1>
-<p><em>dbp</em> maintains some backwards compatibility with <em>opx-build</em>. <code class="codehilite">opx_build</code> does not work without <em>pbuilder</em>, and <code class="codehilite">opx_run</code> does not work without Docker-in-Docker. The <a href="https://github.com/open-switch/opx-build/tree/installer/3.0.0"><em>installer/3.0.0</em></a> tag of <em>opx-build</em> is installed into <code class="codehilite">/usr/local/opx-build</code> and <code class="codehilite">/usr/local/opx-build/scripts</code> has been added to the <code class="codehilite">$PATH</code>.</p>
+<p><em>dbp</em> is replacing <em>opx-build</em> to support more OS distributions, increase developer productivity, and lower operational overhead.</p>
+<p><em>opx-build</em> contains scripts for running the OPX Docker image <a href="https://hub.docker.com/r/opxhub/build"><em>opxhub/build</em></a> (<code class="codehilite">opx_run</code>), building Debian packages with <a href="https://honk.sigxcpu.org/piki/projects/git-buildpackage/"><em>Git-buildpackage</em></a> (<code class="codehilite">opx_build</code>), and <a href="https://github.com/open-switch/opx-build/blob/master/scripts/opx_rel_pkgasm.py">building an OpenSwitch installer</a> (<code class="codehilite">opx_rel_pkgasm.py</code>).</p>
+<h4 id="on-opx-build-and-build-isolation">On <em>opx-build</em> and build isolation<a class="headerlink" href="#on-opx-build-and-build-isolation" title="Permanent link">&para;</a></h4>
+<p><em>opx-build</em> uses <a href="https://honk.sigxcpu.org/piki/projects/git-buildpackage/"><em>git-buildpackage</em></a>/<a href="https://wiki.debian.org/git-pbuilder"><em>git-pbuilder</em></a>/<a href="https://wiki.debian.org/cowbuilder"><em>cowbuilder</em></a> for building packages. This provides clean environments for every build, but is also rather redundant with the Docker image we provide. <em>dbp</em> resolves this issue by removing <em>git-pbuilder</em>/<em>cowbuilder</em> and running builds in the container directly. This also brings the added benefit of simplified environment management, as we can build one image per distribution, instead of one image containing every distribution.</p>
+<h4 id="on-opx-build-and-container-persistence">On <em>opx-build</em> and container persistence<a class="headerlink" href="#on-opx-build-and-container-persistence" title="Permanent link">&para;</a></h4>
+<p>With <em>opx-build</em>, the container is removed after every build. Developers are forced to manually run containers and execute shell sessions within them. <em>dbp</em> is built from the ground up around this workflow, supporting persistent containers and multiple shell sessions.</p>
+<h2 id="dbp-and-backwards-compatibility"><em>dbp</em> and backwards compatibility<a class="headerlink" href="#dbp-and-backwards-compatibility" title="Permanent link">&para;</a></h2>
+<p><em>dbp</em> maintains <em>some</em> backwards compatibility with <em>opx-build</em>. <code class="codehilite">opx_build</code> does not work without <em>pbuilder</em>, and <code class="codehilite">opx_run</code> does not work without Docker-in-Docker. The <a href="https://github.com/open-switch/opx-build/tree/installer/3.0.0"><em>installer/3.0.0</em></a> tag of <em>opx-build</em> is installed into <code class="codehilite">/usr/local/opx-build</code> and <code class="codehilite">/usr/local/opx-build/scripts</code> has been added to the <code class="codehilite">$PATH</code> to support installer building.</p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp shell -c <span class="s1">&#39;which opx_rel_pkgasm.py&#39;</span>
 /usr/local/opx-build/scripts/opx_rel_pkgasm.py
 </pre></div>
 </td></tr></table>
 
-<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<h2 id="command-comparison">Command Comparison<a class="headerlink" href="#command-comparison" title="Permanent link">&para;</a></h2>
 <p><strong>Build a single package</strong></p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2
@@ -488,22 +523,8 @@ $ dbp build
 5</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ opx-build/scripts/opx_run opx_rel_pkgasm.py --dist stable <span class="se">\</span>
   -b opx-onie-installer/release_bp/OPX_dell_base_stretch.xml
 
-$ dbp shell -c <span class="s1">&#39;opx-build/scripts/opx_rel_pkgasm.py --dist stable \</span>
+$ dbp shell -c <span class="s1">&#39;opx_rel_pkgasm.py --dist stable \</span>
 <span class="s1">  -b opx-onie-installer/release_bp/OPX_dell_base_stretch.xml&#39;</span>
-</pre></div>
-</td></tr></table>
-
-<h2 id="speed">Speed<a class="headerlink" href="#speed" title="Permanent link">&para;</a></h2>
-<p>This should definitely be better tested.</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3
-4
-5</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ <span class="nb">time</span> opx-build/scripts/opx_run opx-build opx-logging
-opx-build/scripts/opx_run opx_build opx-logging  <span class="m">0</span>.05s user <span class="m">0</span>.03s system <span class="m">0</span>% cpu <span class="m">3</span>:21.92 total
-
-$ <span class="nb">time</span> dbp build opx-logging
-dbp build opx-logging  <span class="m">0</span>.50s user <span class="m">0</span>.16s system <span class="m">1</span>% cpu <span class="m">49</span>.015 total
 </pre></div>
 </td></tr></table>
                 
