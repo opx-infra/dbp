@@ -268,15 +268,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" title="Prerequisites" class="md-nav__link">
-    Prerequisites
+  <a href="#install" title="Install" class="md-nav__link">
+    Install
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#install" title="Install" class="md-nav__link">
-    Install
+  <a href="#support" title="Support" class="md-nav__link">
+    Support
   </a>
   
 </li>
@@ -286,11 +286,24 @@
     Usage
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#commands" title="Commands" class="md-nav__link">
+    Commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#openswitch-installer" title="OpenSwitch Installer" class="md-nav__link">
-    OpenSwitch Installer
+  <a href="#building-openswitch-installers" title="Building OpenSwitch Installers" class="md-nav__link">
+    Building OpenSwitch Installers
   </a>
   
 </li>
@@ -335,15 +348,27 @@
       
 
 
+  <li class="md-nav__item">
+    <a href="apt-sources/" title="Apt Sources" class="md-nav__link">
+      Apt Sources
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
     
-    <label class="md-nav__link" for="nav-4">
+    <label class="md-nav__link" for="nav-5">
       Commands
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-4">
+      <label class="md-nav__title" for="nav-5">
         Commands
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -435,15 +460,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" title="Prerequisites" class="md-nav__link">
-    Prerequisites
+  <a href="#install" title="Install" class="md-nav__link">
+    Install
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#install" title="Install" class="md-nav__link">
-    Install
+  <a href="#support" title="Support" class="md-nav__link">
+    Support
   </a>
   
 </li>
@@ -453,11 +478,24 @@
     Usage
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#commands" title="Commands" class="md-nav__link">
+    Commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#openswitch-installer" title="OpenSwitch Installer" class="md-nav__link">
-    OpenSwitch Installer
+  <a href="#building-openswitch-installers" title="Building OpenSwitch Installers" class="md-nav__link">
+    Building OpenSwitch Installers
   </a>
   
 </li>
@@ -487,23 +525,14 @@
 <p class="admonition-title">Note</p>
 <p>See why <em>dbp</em> is replacing <em>opx-build</em> <a href="comparison/">here</a>.</p>
 </div>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Python 3.5+</li>
-<li>Docker</li>
-</ol>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ pip3 install --upgrade dbp
 </pre></div>
 </td></tr></table>
 
-<p>To avoid installing into the global namespace, install into a virtualenv.</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ python3 -mvenv ~/.dbp <span class="o">&amp;&amp;</span> ~/.dbp/bin/pip install dbp
-$ <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HOME</span>/.dbp/bin
-</pre></div>
-</td></tr></table>
-
+<p>For more information, see <a href="installation/">installation</a>.</p>
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For bug reports and feature requests, file an issue on <a href="https://github.com/opx-infra/dbp/issues/new/choose">GitHub</a>. For other support, drop by the <a href="https://chat.openswitch.net/channel/dbp"><em>dbp</em> support channel</a> and we'll help you out.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Clone any number of OpenSwitch repositories</li>
@@ -515,6 +544,7 @@ $ dbp build
 </pre></div>
 </td></tr></table>
 
+<h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="commands/build/"><em>dbp build</em></a> runs an out-of-tree build and stores build artifacts in <code class="codehilite">./pool/</code> for easy publishing</li>
 <li><a href="commands/shell/"><em>dbp shell</em></a> launches an interactive bash shell in the development environment container</li>
@@ -523,15 +553,9 @@ $ dbp build
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p><em>dbp</em> uses <a href="http://deb.openswitch.net">OpenSwitch apt sources</a>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="k">deb</span>     <span class="s">http://deb.openswitch.net/stretch</span> <span class="kp">unstable</span> <span class="kp">opx</span> <span class="kp">opx-non-free</span>
-<span class="k">deb-src</span> <span class="s">http://deb.openswitch.net/stretch</span> <span class="kp">unstable</span> <span class="kp">opx</span>
-</pre></div>
-</td></tr></table>
-if no other sources are specified.</p>
+<p>Read up on <em>dbp</em> and Apt sources <a href="apt-sources/">here</a>.</p>
 </div>
-<h2 id="openswitch-installer">OpenSwitch Installer<a class="headerlink" href="#openswitch-installer" title="Permanent link">&para;</a></h2>
+<h2 id="building-openswitch-installers">Building OpenSwitch Installers<a class="headerlink" href="#building-openswitch-installers" title="Permanent link">&para;</a></h2>
 <p><em>dbp</em> can be used to build an OpenSwitch installer.</p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
 2
