@@ -5,6 +5,7 @@ nav:
   - Home: index.md
   - Changelog: changelog.md
   - Comparison: comparison.md
+  - Apt Sources: apt-sources.md
   - Commands:
     - "Build": "commands/build.md"
     - "Shell": "commands/shell.md"

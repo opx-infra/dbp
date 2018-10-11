@@ -5,23 +5,17 @@ Docker-buildpackage is a tool for building Debian packages.
 !!! note
     See why *dbp* is replacing *opx-build* [here](comparison.md).
 
-## Prerequisites
-
-1. Python 3.5+
-1. Docker
-
 ## Install
 
 ```bash
 $ pip3 install --upgrade dbp
 ```
 
-To avoid installing into the global namespace, install into a virtualenv.
+For more information, see [installation](installation.md).
 
-```bash
-$ python3 -mvenv ~/.dbp && ~/.dbp/bin/pip install dbp
-$ export PATH=$PATH:$HOME/.dbp/bin
-```
+## Support
+
+For bug reports and feature requests, file an issue on [GitHub](https://github.com/opx-infra/dbp/issues/new/choose). For other support, drop by the [*dbp* support channel](https://chat.openswitch.net/channel/dbp) and we'll help you out.
 
 ## Usage
 
@@ -33,20 +27,17 @@ $ git clone https://github.com/open-switch/opx-logging
 $ dbp build
 ```
 
+### Commands
+
 * [*dbp build*](commands/build.md) runs an out-of-tree build and stores build artifacts in `./pool/` for easy publishing
 * [*dbp shell*](commands/shell.md) launches an interactive bash shell in the development environment container
 * [*dbp run*](commands/run.md) starts a persistent container in the background
 * [*dbp rm*](commands/rm.md) removes the persistent container from the background
 
 !!! tip
-    *dbp* uses [OpenSwitch apt sources](http://deb.openswitch.net)
-    ```
-    deb     http://deb.openswitch.net/stretch unstable opx opx-non-free
-    deb-src http://deb.openswitch.net/stretch unstable opx
-    ```
-    if no other sources are specified.
+    Read up on *dbp* and Apt sources [here](apt-sources.md).
 
-## OpenSwitch Installer
+## Building OpenSwitch Installers
 
 *dbp* can be used to build an OpenSwitch installer.
 

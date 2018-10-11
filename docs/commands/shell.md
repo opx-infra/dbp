@@ -2,6 +2,9 @@
 
 *dbp shell* launches an interactive shell in a Debian development environment. This environment is provided by [*opx-infra/gbp-docker*](https://github.com/opx-infra/gbp-docker). If a container were previously launched with [*dbp run*](run.md) in the same directory, *dbp shell* would launch the shell in the existing container. This existing container is not removed when the shell exits. If no container exists, a new container is created and then destroyed after.
 
+!!! tip
+    Read up on *dbp* and Apt sources [here](../apt-sources.md).
+
 ```bash
 $ dbp -vv shell
 [INFO] Loaded extra sources:

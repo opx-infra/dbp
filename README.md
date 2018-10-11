@@ -23,3 +23,7 @@ pip3 install dbp
 ## Docs
 
 Get started with the [documentation](https://opx-infra.github.io/dbp/).
+
+## Support
+
+For bug reports and feature requests, file an issue on [GitHub](https://github.com/opx-infra/dbp/issues/new/choose). For other support, drop by the [*dbp* support channel](https://chat.openswitch.net/channel/dbp) and we'll help you out.

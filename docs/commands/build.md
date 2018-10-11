@@ -2,6 +2,9 @@
 
 Out of the box, *dbp build* reads all directories and builds a graph of Debian build dependencies, which it traverses while building each Debian package. These packages are sorted into a pool and used for subsequent builds and ultimately publishing.
 
+!!! tip
+    Read up on *dbp* and Apt sources [here](../apt-sources.md).
+
 ## Build a single package in a non-persistent container
 
 ```bash
@@ -66,53 +69,6 @@ build@stretch:/mnt$ ll pool/stretch-amd64/opx-logging | awk '{print $5, $9}' | c
 2.6K  opx-logging_2.1.1_amd64.changes
 3.6K  opx-logging_2.1.1_amd64.deb
 12K   python-opx-logging_2.1.1_amd64.deb
-```
-
-## Build against an OPX release
-
-```bash
-$ dbp --release 3.0.0 build
-```
-
-## Build against a Debian distribution
-
-```bash
-$ dbp --dist bionic build
-```
-
-## Build against extra apt sources
-
-*dbp* will read from the following list of inputs for extra apt sources. These sources must be in standard sources.list format.
-
-1. `--extra-sources` argument
-1. `EXTRA_SOURCES` environment variable
-1. `./.extra_sources.list` file
-1. `~/.extra_sources.list` file
-
-For example, fill `~/.extra_sources.list` with
-
-```
-deb     http://deb.openswitch.net/stretch stable opx opx-non-free
-deb-src http://deb.openswitch.net/stretch stable opx
-```
-
-and *dbp build* will search OpenSwitch for build dependencies.
-
-```bash
-$ dbp -v build src
-INFO:dbp:Loaded extra sources:
-deb     http://deb.openswitch.net/stretch stable opx opx-non-free
-deb-src http://deb.openswitch.net/stretch stable opx
-```
-
-If no sources are found, the default OPX sources are used.
-
-## Exclude custom apt sources
-
-Also excludes default OPX sources. Useful for ensuring a complete local build is possible.
-
-```bash
-$ dbp --no-extra-sources build
 ```
 
 ## Pass additional `git-buildpackage` options
