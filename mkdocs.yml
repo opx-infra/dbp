@@ -12,6 +12,7 @@ nav:
     - "Shell": "commands/shell.md"
     - "Run": "commands/run.md"
     - "Rm": "commands/rm.md"
+  - Development Workflow: development-workflow.md
   - FAQs: faq.md
 theme:
   name: "material"
