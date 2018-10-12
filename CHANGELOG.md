@@ -6,6 +6,10 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.10.3] - 2018/10/12
+### Changed
+- Default upstream tag from `v%(version)s` to `upstream/%(version)s`
+
 ## [18.10.2] - 2018/10/10
 ### Added
 - `--debug` flag for building unstripped, unoptimized binaries. Sets `DEB_BUILD_OPTIONS="nostrip noopt debug"`
@@ -98,7 +102,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.2...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.3...HEAD
+[18.10.3]: https://github.com/opx-infra/dbp/compare/v18.10.2...v18.10.3
 [18.10.2]: https://github.com/opx-infra/dbp/compare/v18.10.1...v18.10.2
 [18.10.1]: https://github.com/opx-infra/dbp/compare/v18.10.0...v18.10.1
 [18.10.0]: https://github.com/opx-infra/dbp/compare/v0.7.1...v18.10.0
@@ -119,4 +124,3 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 [0.3.3]: https://github.com/opx-infra/dbp/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/opx-infra/dbp/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/opx-infra/dbp/compare/40462d74eaff1cf85f52c497372be5e37d43e564...v0.3.1
-
