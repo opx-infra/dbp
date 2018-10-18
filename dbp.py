@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "18.10.3"
+__version__ = "18.10.4"
 
 import argparse
 import logging
@@ -17,7 +17,7 @@ import controlgraph
 import networkx as nx
 
 IMAGE = "opxhub/gbp"
-IMAGE_VERSION = "v1.1.1"
+IMAGE_VERSION = "v2.0.0"
 CONTAINER_NAME = "{}-dbp-{}".format(os.getenv("USER"), Path.cwd().stem)
 
 ENV_UID = "-e=UID={}".format(os.getuid())
@@ -26,10 +26,6 @@ ENV_TZ = "-e=TZ={}".format("/".join(Path("/etc/localtime").resolve().parts[-2:])
 ENV_MAINT_NAME = "-e=DEBFULLNAME={}".format(os.getenv("DEBFULLNAME", "Dell EMC"))
 ENV_MAINT_MAIL = "-e=DEBEMAIL={}".format(
     os.getenv("DEBEMAIL", "ops-dev@lists.openswitch.net")
-)
-
-LOG_BUILD_COMMAND = (
-    '--- cd {0}; gbp buildpackage --git-export-dir="/mnt/pool/{1}-amd64/{0}" {2}\n'
 )
 
 OPX_DEFAULT_SOURCES = """\
@@ -102,7 +98,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         )
     )
     for t in args.targets:
-        sys.stdout.write(LOG_BUILD_COMMAND.format(t.stem, args.dist, args.gbp))
+        sys.stdout.write("--- cd {0}; gbp buildpackage {1}\n".format(t.stem, args.gbp))
         sys.stdout.flush()
         rc = dexec_buildpackage(args.dist, t, args.extra_sources, args.gbp, args.debug)
         if rc != 0:
@@ -187,7 +183,7 @@ def cmd_shell(args: argparse.Namespace) -> int:
 def dexec_buildpackage(
     dist: str, target: Path, sources: str, gbp_options: str, debug=False
 ) -> int:
-    """Runs gbp buildpackage --git-export-dir=pool/{dist}-amd64/{target}
+    """Runs gbp buildpackage
 
     Container must already be started.
     """
@@ -200,6 +196,7 @@ def dexec_buildpackage(
         "exec",
         "-it" if sys.stdin.isatty() else "-t",
         "--user=build",
+        "--workdir=/mnt/{}".format(target.stem),
         deb_build_options_string(debug, 0),
         ENV_UID,
         ENV_GID,
@@ -208,8 +205,8 @@ def dexec_buildpackage(
         ENV_MAINT_MAIL,
         "-e=EXTRA_SOURCES={}".format(sources),
         CONTAINER_NAME,
-        "build",
-        target.stem,
+        "gbp",
+        "buildpackage",
     ]
     cmd.extend(shlex.split(gbp_options))
 
