@@ -33,9 +33,6 @@ There are many ways to specify custom Apt sources. In order of precedence:
 * The `./extra_sources.list` file
 * The `$HOME/.extra_sources.list` file
 
-!!! tip
-    Use `dbp -e "$(cat my-project.list)"` for one-off custom builds.
-
 For example, fill `~/.extra_sources.list` with
 
 ```

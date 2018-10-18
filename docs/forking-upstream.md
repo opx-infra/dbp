@@ -1,4 +1,4 @@
-# Development Workflow
+# Forking from an Upstream
 
 Depending on your upstream, there are three main ways of interacting with Debian package repositories:
 
