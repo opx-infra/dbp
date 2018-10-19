@@ -6,6 +6,18 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.10.4] - 2018/10/19
+### Added
+- New script for sorting packages into per-repository directories
+
+### Changed
+- Bump `gbp-docker` to 2.0.0
+- Build artifacts are deposited into `/mnt` container-side (instead of `/mnt/pool/$DIST-$ARCH/src`)
+- Local packages are indexed from `/mnt` (instead of `/mnt/pool/$DIST-$ARCH`)
+
+### Fixed
+- Packages built with `fakeroot debian/rules binary` are now correctly indexed
+
 ## [18.10.3] - 2018/10/12
 ### Changed
 - Default upstream tag from `v%(version)s` to `upstream/%(version)s`
@@ -102,7 +114,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.3...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.4...HEAD
+[18.10.4]: https://github.com/opx-infra/dbp/compare/v18.10.3...v18.10.4
 [18.10.3]: https://github.com/opx-infra/dbp/compare/v18.10.2...v18.10.3
 [18.10.2]: https://github.com/opx-infra/dbp/compare/v18.10.1...v18.10.2
 [18.10.1]: https://github.com/opx-infra/dbp/compare/v18.10.0...v18.10.1
