@@ -268,15 +268,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install" title="Install" class="md-nav__link">
-    Install
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#support" title="Support" class="md-nav__link">
-    Support
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
   </a>
   
 </li>
@@ -286,24 +279,11 @@
     Usage
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#commands" title="Commands" class="md-nav__link">
-    Commands
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#building-openswitch-installers" title="Building OpenSwitch Installers" class="md-nav__link">
-    Building OpenSwitch Installers
+  <a href="#more-information" title="More information" class="md-nav__link">
+    More information
   </a>
   
 </li>
@@ -337,8 +317,44 @@
 
 
   <li class="md-nav__item">
-    <a href="comparison/" title="Comparison" class="md-nav__link">
-      Comparison
+    <a href="installation/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="build-packages/" title="Building packages" class="md-nav__link">
+      Building packages
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="build-installers/" title="Building installers" class="md-nav__link">
+      Building installers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="comparison/" title="Comparison with opx-build" class="md-nav__link">
+      Comparison with opx-build
     </a>
   </li>
 
@@ -360,81 +376,9 @@
       
 
 
-  <li class="md-nav__item md-nav__item--nested">
-    
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
-    
-    <label class="md-nav__link" for="nav-5">
-      Commands
-    </label>
-    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-5">
-        Commands
-      </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-
   <li class="md-nav__item">
-    <a href="commands/build/" title="Build" class="md-nav__link">
-      Build
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="commands/shell/" title="Shell" class="md-nav__link">
-      Shell
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="commands/run/" title="Run" class="md-nav__link">
-      Run
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="commands/rm/" title="Rm" class="md-nav__link">
-      Rm
-    </a>
-  </li>
-
-        
-      </ul>
-    </nav>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="development-workflow/" title="Development Workflow" class="md-nav__link">
-      Development Workflow
+    <a href="forking-upstream/" title="Forking Upstream" class="md-nav__link">
+      Forking Upstream
     </a>
   </li>
 
@@ -472,15 +416,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install" title="Install" class="md-nav__link">
-    Install
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#support" title="Support" class="md-nav__link">
-    Support
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
   </a>
   
 </li>
@@ -490,24 +427,11 @@
     Usage
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#commands" title="Commands" class="md-nav__link">
-    Commands
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#building-openswitch-installers" title="Building OpenSwitch Installers" class="md-nav__link">
-    Building OpenSwitch Installers
+  <a href="#more-information" title="More information" class="md-nav__link">
+    More information
   </a>
   
 </li>
@@ -530,90 +454,25 @@
                 
                 
                 <h1 id="docker-buildpackage-documentation">Docker-buildpackage Documentation<a class="headerlink" href="#docker-buildpackage-documentation" title="Permanent link">&para;</a></h1>
-<p>Docker-buildpackage is a tool for building Debian packages.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>See why <em>dbp</em> is replacing <em>opx-build</em> <a href="comparison/">here</a>.</p>
-</div>
-<p>OpenSwitch's development workflow is outlined <a href="development-workflow/">here</a>.</p>
-<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
+<p>Docker-buildpackage is a tool for managing OpenSwitch development environments and building OpenSwitch Debian packages.</p>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ pip3 install --upgrade dbp
 </pre></div>
 </td></tr></table>
 
 <p>For more information, see <a href="installation/">installation</a>.</p>
-<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
-<p>For bug reports and feature requests, file an issue on <a href="https://github.com/opx-infra/dbp/issues/new/choose">GitHub</a>. For other support, drop by the <a href="https://chat.openswitch.net/channel/dbp"><em>dbp</em> support channel</a> and we'll help you out.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Clone any number of OpenSwitch repositories</li>
-<li>Build!</li>
-</ol>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ git clone https://github.com/open-switch/opx-logging
-$ dbp build
-</pre></div>
-</td></tr></table>
-
-<h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h3>
 <ul>
-<li><a href="commands/build/"><em>dbp build</em></a> runs an out-of-tree build and stores build artifacts in <code class="codehilite">./pool/</code> for easy publishing</li>
-<li><a href="commands/shell/"><em>dbp shell</em></a> launches an interactive bash shell in the development environment container</li>
-<li><a href="commands/run/"><em>dbp run</em></a> starts a persistent container in the background</li>
-<li><a href="commands/rm/"><em>dbp rm</em></a> removes the persistent container from the background</li>
+<li><a href="build-packages/">Building packages</a></li>
+<li><a href="build-installers/">Building ONIE installers</a></li>
 </ul>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Read up on <em>dbp</em> and Apt sources <a href="apt-sources/">here</a>.</p>
-</div>
-<h2 id="building-openswitch-installers">Building OpenSwitch Installers<a class="headerlink" href="#building-openswitch-installers" title="Permanent link">&para;</a></h2>
-<p><em>dbp</em> can be used to build an OpenSwitch installer.</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2
-3</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ git clone https://github.com/open-switch/opx-onie-installer
-$ dbp shell -c <span class="s1">&#39;opx_rel_pkgasm.py \</span>
-<span class="s1">  -b opx-onie-installer/release_bp/OPX_dell_base_stretch.xml&#39;</span>
-</pre></div>
-</td></tr></table>
-
-<p>Usage:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp shell -c <span class="s1">&#39;opx_rel_pkgasm.py --help&#39;</span>
-usage: opx_rel_pkgasm.py <span class="o">[</span>-h<span class="o">]</span> -b B <span class="o">[</span>-n N<span class="o">]</span> <span class="o">[</span>-s S<span class="o">]</span> <span class="o">[</span>-v V<span class="o">]</span>
-                         <span class="o">[</span>--build-info BUILD_INFO<span class="o">]</span> <span class="o">[</span>--build-url BUILD_URL<span class="o">]</span>
-                         <span class="o">[</span>--vcs-url VCS_URL<span class="o">]</span> <span class="o">[</span>--vcs-revision VCS_REVISION<span class="o">]</span>
-                         <span class="o">[</span>-d DIST<span class="o">]</span>
-
-optional arguments:
-  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
-  -b B                  specify location of release blue-print
-  -n N                  specify build number of release
-  -s S                  specify release number suffix
-  -v V                  specify verbosity level
-  --build-info BUILD_INFO
-                        specify location of build-info json output
-  --build-url BUILD_URL
-  --vcs-url VCS_URL
-  --vcs-revision VCS_REVISION
-  -d DIST, --dist DIST  Distribution to build
-</pre></div>
-</td></tr></table>
+<h2 id="more-information">More information<a class="headerlink" href="#more-information" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="comparison/">Comparison with opx-build</a></li>
+<li><a href="apt-sources/">Apt sources and you</a></li>
+<li><a href="forking-upstream/">Forking from an upstream</a></li>
+<li><a href="faq/">Frequently asked questions</a></li>
+</ul>
                 
                   
                 

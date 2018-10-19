@@ -265,8 +265,44 @@
 
 
   <li class="md-nav__item">
-    <a href="../comparison/" title="Comparison" class="md-nav__link">
-      Comparison
+    <a href="../installation/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../build-packages/" title="Building packages" class="md-nav__link">
+      Building packages
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../build-installers/" title="Building installers" class="md-nav__link">
+      Building installers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../comparison/" title="Comparison with opx-build" class="md-nav__link">
+      Comparison with opx-build
     </a>
   </li>
 
@@ -288,81 +324,9 @@
       
 
 
-  <li class="md-nav__item md-nav__item--nested">
-    
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
-    
-    <label class="md-nav__link" for="nav-5">
-      Commands
-    </label>
-    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-5">
-        Commands
-      </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-
   <li class="md-nav__item">
-    <a href="../commands/build/" title="Build" class="md-nav__link">
-      Build
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../commands/shell/" title="Shell" class="md-nav__link">
-      Shell
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../commands/run/" title="Run" class="md-nav__link">
-      Run
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../commands/rm/" title="Rm" class="md-nav__link">
-      Rm
-    </a>
-  </li>
-
-        
-      </ul>
-    </nav>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../development-workflow/" title="Development Workflow" class="md-nav__link">
-      Development Workflow
+    <a href="../forking-upstream/" title="Forking Upstream" class="md-nav__link">
+      Forking Upstream
     </a>
   </li>
 
@@ -414,15 +378,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-is-the-build-program" title="What is the build program?" class="md-nav__link">
-    What is the build program?
+  <a href="#what-is-the-install-build-deps-program" title="What is the install-build-deps program?" class="md-nav__link">
+    What is the install-build-deps program?
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-is-the-install-build-deps-program" title="What is the install-build-deps program?" class="md-nav__link">
-    What is the install-build-deps program?
+  <a href="#what-is-the-pool-packages-program" title="What is the pool-packages program?" class="md-nav__link">
+    What is the pool-packages program?
   </a>
   
 </li>
@@ -480,15 +444,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-is-the-build-program" title="What is the build program?" class="md-nav__link">
-    What is the build program?
+  <a href="#what-is-the-install-build-deps-program" title="What is the install-build-deps program?" class="md-nav__link">
+    What is the install-build-deps program?
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-is-the-install-build-deps-program" title="What is the install-build-deps program?" class="md-nav__link">
-    What is the install-build-deps program?
+  <a href="#what-is-the-pool-packages-program" title="What is the pool-packages program?" class="md-nav__link">
+    What is the pool-packages program?
   </a>
   
 </li>
@@ -530,38 +494,12 @@
 </td></tr></table>
 
 <p>An editor will be opened where you can edit the changelog entry. Simply commit the changes and raise a pull request!</p>
-<h2 id="what-is-the-build-program">What is the <code class="codehilite">build</code> program?<a class="headerlink" href="#what-is-the-build-program" title="Permanent link">&para;</a></h2>
-<p><code class="codehilite">build</code> is a simple shell script which <code class="codehilite">cd</code>s into the source directory and runs <code class="codehilite">gbp buildpackage</code> with the <a href="http://honk.sigxcpu.org/projects/git-buildpackage/manual-html/man.gbp.buildpackage.html"><code class="codehilite">--git-export-dir</code></a> flag. This sorts build artifacts into per-source package directories.</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
-<span class="nb">set</span> -euo pipefail
-
-<span class="k">if</span> <span class="o">[[</span> <span class="nv">$#</span> -gt <span class="m">0</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
-  <span class="nb">cd</span> <span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
-  <span class="nv">NAME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
-  <span class="nb">shift</span>
-<span class="k">else</span>
-  <span class="nv">NAME</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>basename <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
-<span class="k">fi</span>
-
-gbp buildpackage --git-export-dir<span class="o">=</span><span class="s2">&quot;/mnt/pool/</span><span class="si">${</span><span class="nv">DIST</span><span class="si">}</span><span class="s2">-</span><span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">NAME</span><span class="si">}</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
-</pre></div>
-</td></tr></table>
-
 <h2 id="what-is-the-install-build-deps-program">What is the <code class="codehilite">install-build-deps</code> program?<a class="headerlink" href="#what-is-the-install-build-deps-program" title="Permanent link">&para;</a></h2>
 <p><code class="codehilite">install-build-deps</code> is a shell script which indexes local packages, adds your extra sources, then installs build dependencies. It is run automatically when using <code class="codehilite">gbp buildpackage</code> or <code class="codehilite">build</code>. Skip running it with <code class="codehilite">dbp build --gbp=&quot;--git-prebuild=&#39;:&#39;&quot;</code>.</p>
+<h2 id="what-is-the-pool-packages-program">What is the <code class="codehilite">pool-packages</code> program?<a class="headerlink" href="#what-is-the-pool-packages-program" title="Permanent link">&para;</a></h2>
+<p><code class="codehilite">pool-packages</code> reads a Debian changes file and moves all associated files into <code class="codehilite">./pool/<span class="cp">${</span><span class="n">DIST</span><span class="cp">}</span>-<span class="cp">${</span><span class="n">ARCH</span><span class="cp">}</span>/src</code>. It is useful for sharing packages.</p>
 <h2 id="why-am-i-receiving-unable-to-find-user-build">Why am I receiving <code class="codehilite">unable to find user build</code>?<a class="headerlink" href="#why-am-i-receiving-unable-to-find-user-build" title="Permanent link">&para;</a></h2>
-<p>Docker could be too slow (or it could be storage). Either way, the container is taking too long to start. Try running <a href="../commands/run/"><em>dbp run</em></a> first before running a build or shell.</p>
+<p>Docker could be too slow (or it could be storage). Either way, the container is taking too long to start. Try running <em>dbp run</em> first before running a build or shell.</p>
                 
                   
                 
@@ -582,7 +520,7 @@ gbp buildpackage --git-export-dir<span class="o">=</span><span class="s2">&quot;
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../development-workflow/" title="Development Workflow" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../forking-upstream/" title="Forking Upstream" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -591,7 +529,7 @@ gbp buildpackage --git-export-dir<span class="o">=</span><span class="s2">&quot;
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Development Workflow
+                Forking Upstream
               </span>
             </div>
           </a>
