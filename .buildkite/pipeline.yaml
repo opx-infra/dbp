@@ -1,5 +1,5 @@
 steps:
-  - label: ":python: format"
+  - label: ":python: format and test"
     branches: "!v*.*.*"
     command: |
       echo "+++ Running formatter"
@@ -10,7 +10,7 @@ steps:
       .venv/bin/pip install flit
       .venv/bin/flit install -s
       echo "+++ Testing"
-      .venv/bin/pytest --cov=dbp tests/ --cov-report=xml --cov-report=term
+      .venv/bin/pytest -s --cov=dbp tests/ --cov-report=xml --cov-report=term
       PATH=$PWD/.venv/bin:$PATH bash <(curl -s https://codecov.io/bash)
   - label: "publish docs"
     branches: "master"
