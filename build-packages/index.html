@@ -476,16 +476,6 @@ $ git clone https://github.com/open-switch/opx-common-utils
 </pre></div>
 </td></tr></table></p>
 <h2 id="non-interactive-package-builds">Non-interactive package builds<a class="headerlink" href="#non-interactive-package-builds" title="Permanent link">&para;</a></h2>
-<p>Use <em>dbp build</em> to build a full workspace. This runs <code class="codehilite">cd $repo; gbp buildpackage</code> for each repository with a <code class="codehilite">debian/control</code> file.
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp build
-</pre></div>
-</td></tr></table></p>
-<p>The <code class="codehilite">--print</code> flag can be used to preview the build order.
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp build --print
-opx-logging opx-common-utils
-</pre></div>
-</td></tr></table></p>
 <p>Build specific repositories by naming them.
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp build opx-logging
 </pre></div>
@@ -500,6 +490,16 @@ opx-logging_2.1.1_amd64.changes
 $ dbp shell -c <span class="s1">&#39;pool-packages *.changes&#39;</span>
 $ ls pool/stretch-amd64/opx-logging/*.changes
 pool/stretch-amd64/opx-logging/opx-logging_2.1.1_amd64.changes
+</pre></div>
+</td></tr></table></p>
+<p>Use <em>dbp build</em> without any arguments to build a full workspace. This runs <code class="codehilite">cd $repo; gbp buildpackage</code> for each repository with a <code class="codehilite">debian/control</code> file.
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp build
+</pre></div>
+</td></tr></table></p>
+<p>The <code class="codehilite">--print</code> flag can be used to preview the build order.
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp build --print
+opx-logging opx-common-utils
 </pre></div>
 </td></tr></table></p>
 <h2 id="interactive-package-builds">Interactive package builds<a class="headerlink" href="#interactive-package-builds" title="Permanent link">&para;</a></h2>
