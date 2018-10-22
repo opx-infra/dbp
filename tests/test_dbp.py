@@ -11,3 +11,9 @@ def test_deb_build_options_string():
         dbp.deb_build_options_string(True, 5)
         == "-e=DEB_BUILD_OPTIONS=nostrip noopt debug parallel=5"
     )
+
+
+def test_irun():
+    assert dbp.irun(["true"], True) == 0
+    assert dbp.irun(["false"], True) == 1
+    assert dbp.irun([], True) == -1

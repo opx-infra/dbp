@@ -323,7 +323,13 @@ def docker_start(dist: str) -> int:
 
 
 def irun(cmd: List[str], quiet=False) -> int:
-    """irun runs an interactive command."""
+    """irun runs an interactive command.
+
+    irun returns -1 when no command is specified.
+    """
+    if len(cmd) == 0:
+        return -1
+
     L.debug("Running {}".format(" ".join(cmd)))
     if quiet:
         proc = run(cmd, stdin=sys.stdin, stdout=DEVNULL, stderr=DEVNULL)
