@@ -8,17 +8,6 @@ $ git clone https://github.com/open-switch/opx-common-utils
 ```
 
 ## Non-interactive package builds
-Use *dbp build* to build a full workspace. This runs `cd $repo; gbp buildpackage` for each repository with a `debian/control` file.
-```bash
-$ dbp build
-```
-
-The `--print` flag can be used to preview the build order.
-```bash
-$ dbp build --print
-opx-logging opx-common-utils
-```
-
 Build specific repositories by naming them.
 ```bash
 $ dbp build opx-logging
@@ -31,6 +20,17 @@ opx-logging_2.1.1_amd64.changes
 $ dbp shell -c 'pool-packages *.changes'
 $ ls pool/stretch-amd64/opx-logging/*.changes
 pool/stretch-amd64/opx-logging/opx-logging_2.1.1_amd64.changes
+```
+
+Use *dbp build* without any arguments to build a full workspace. This runs `cd $repo; gbp buildpackage` for each repository with a `debian/control` file.
+```bash
+$ dbp build
+```
+
+The `--print` flag can be used to preview the build order.
+```bash
+$ dbp build --print
+opx-logging opx-common-utils
 ```
 
 ## Interactive package builds
