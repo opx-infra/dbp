@@ -6,6 +6,10 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.10.5] - 2018/10/22
+### Fixed
+- Pooling multiple changes files with one call to `pool-packages`
+
 ## [18.10.4] - 2018/10/19
 ### Added
 - New script for sorting packages into per-repository directories
@@ -114,7 +118,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.4...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.5...HEAD
+[18.10.5]: https://github.com/opx-infra/dbp/compare/v18.10.4...v18.10.5
 [18.10.4]: https://github.com/opx-infra/dbp/compare/v18.10.3...v18.10.4
 [18.10.3]: https://github.com/opx-infra/dbp/compare/v18.10.2...v18.10.3
 [18.10.2]: https://github.com/opx-infra/dbp/compare/v18.10.1...v18.10.2
