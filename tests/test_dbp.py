@@ -15,5 +15,8 @@ def test_deb_build_options_string():
 
 def test_irun():
     assert dbp.irun(["true"], True) == 0
+    assert dbp.irun(["true"], False) == 0
     assert dbp.irun(["false"], True) == 1
+    assert dbp.irun(["false"], False) == 1
     assert dbp.irun([], True) == -1
+    assert dbp.irun([], False) == -1
