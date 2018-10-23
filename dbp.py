@@ -18,7 +18,9 @@ import networkx as nx
 
 IMAGE = "opxhub/gbp"
 IMAGE_VERSION = "v2.0.2"
-CONTAINER_NAME = "{}-dbp-{}".format(os.getenv("USER"), Path.cwd().stem)
+CONTAINER_NAME = "{}-dbp-{}-{}".format(
+    os.getenv("USER"), Path.cwd().stem, os.getenv("CNAME", os.getppid())
+)
 
 ENV_UID = "-e=UID={}".format(os.getuid())
 ENV_GID = "-e=GID={}".format(os.getgid())
