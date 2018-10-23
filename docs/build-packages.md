@@ -64,6 +64,16 @@ build@stretch:/mnt/opx-logging$ fakeroot debian/rules clean
 build@stretch:/mnt/opx-logging$ exit
 ```
 
+*dbp run* creates a container based on the shell process id. To always use the same container name, set the `CNAME` environment variable.
+
+```bash
+$ dbp -vv rm
+[DEBUG] Running docker inspect user-dbp-demo-22222
+
+$ CNAME=foo dbp -vv rm
+[DEBUG] Running docker inspect user-dbp-demo-foo
+```
+
 ## Debug builds
 Build unstripped, unoptimized packages with the `--debug` flag. Both *dbp shell* and *dbp build* support it.
 ```bash
