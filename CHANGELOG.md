@@ -6,6 +6,10 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.10.6] - 2018/10/23
+### Fixed
+- Debuild now uses `~/.devscripts` instead of hard-coding flags
+
 ## [18.10.5] - 2018/10/22
 ### Fixed
 - Pooling multiple changes files with one call to `pool-packages`
@@ -118,7 +122,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.5...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.6...HEAD
+[18.10.6]: https://github.com/opx-infra/dbp/compare/v18.10.5...v18.10.6
 [18.10.5]: https://github.com/opx-infra/dbp/compare/v18.10.4...v18.10.5
 [18.10.4]: https://github.com/opx-infra/dbp/compare/v18.10.3...v18.10.4
 [18.10.3]: https://github.com/opx-infra/dbp/compare/v18.10.2...v18.10.3
