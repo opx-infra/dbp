@@ -545,6 +545,19 @@ build@stretch:/mnt/opx-logging$ <span class="nb">exit</span>
 </pre></div>
 </td></tr></table>
 
+<p><em>dbp run</em> creates a container based on the shell process id. To always use the same container name, set the <code class="codehilite">CNAME</code> environment variable.</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>$ dbp -vv rm
+<span class="o">[</span>DEBUG<span class="o">]</span> Running docker inspect user-dbp-demo-22222
+
+$ <span class="nv">CNAME</span><span class="o">=</span>foo dbp -vv rm
+<span class="o">[</span>DEBUG<span class="o">]</span> Running docker inspect user-dbp-demo-foo
+</pre></div>
+</td></tr></table>
+
 <h2 id="debug-builds">Debug builds<a class="headerlink" href="#debug-builds" title="Permanent link">&para;</a></h2>
 <p>Build unstripped, unoptimized packages with the <code class="codehilite">--debug</code> flag. Both <em>dbp shell</em> and <em>dbp build</em> support it.
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>1
