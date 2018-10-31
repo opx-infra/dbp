@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+## Added
+- Ability to set container name with `$CNAME` environment variable
 
 ## [18.10.6] - 2018/10/23
 ### Fixed

@@ -64,14 +64,14 @@ build@stretch:/mnt/opx-logging$ fakeroot debian/rules clean
 build@stretch:/mnt/opx-logging$ exit
 ```
 
-*dbp run* creates a container based on the shell process id. To always use the same container name, set the `CNAME` environment variable.
+*dbp run* creates a container based on the current user, directory, and shell process id. To always use the same container name (or start a shell in someone else's), use the `$CNAME` environment variable.
 
 ```bash
 $ dbp -vv rm
 [DEBUG] Running docker inspect user-dbp-demo-22222
 
-$ CNAME=foo dbp -vv rm
-[DEBUG] Running docker inspect user-dbp-demo-foo
+$ CNAME=CONSTANT dbp -vv rm
+[DEBUG] Running docker inspect CONSTANT
 ```
 
 ## Debug builds

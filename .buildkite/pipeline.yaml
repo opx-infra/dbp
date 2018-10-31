@@ -12,26 +12,17 @@ steps:
       echo "+++ Testing"
       .venv/bin/pytest -s --cov=dbp tests/ --cov-report=xml --cov-report=term
       PATH=$PWD/.venv/bin:$PATH bash <(curl -s https://codecov.io/bash)
-  - label: "publish docs"
-    branches: "master"
+  - label: ":python: publish docs and package"
+    branches: "v*.*.*"
     agents:
       queue: "deploy"
     command: |
-      echo "--- Preparing venv"
+      echo "--- Installing flit and requirements"
       rm -rf .venv
       python3 -mvenv .venv
       .venv/bin/pip install flit
       .venv/bin/flit install -s
       echo "+++ Deploying site"
       .venv/bin/mkdocs gh-deploy --force
-  - label: ":python: flit publish"
-    branches: "v*.*.*"
-    agents:
-      queue: "deploy"
-    command: |
-      echo "--- Installing flit"
-      rm -rf .venv
-      python3 -mvenv .venv
-      .venv/bin/pip install flit
       echo "+++ Publishing to PyPi"
       .venv/bin/flit publish
