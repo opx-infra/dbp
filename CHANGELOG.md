@@ -8,6 +8,12 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ## Added
 - Ability to set container name with `$CNAME` environment variable
 
+### Changed
+- Local package index is now stored separately from packages
+
+### Fixed
+- Parallel containers conflicting when writing package indexes
+
 ## [18.10.6] - 2018/10/23
 ### Fixed
 - Debuild now uses `~/.devscripts` instead of hard-coding flags

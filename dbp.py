@@ -17,7 +17,7 @@ import controlgraph
 import networkx as nx
 
 IMAGE = "opxhub/gbp"
-IMAGE_VERSION = "v2.0.2"
+IMAGE_VERSION = "v2.0.3"
 if "CNAME" in os.environ:
     CONTAINER_NAME = os.getenv("CNAME")
 else:
