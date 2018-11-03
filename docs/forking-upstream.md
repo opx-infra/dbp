@@ -62,6 +62,12 @@ Development is done on the `opx/master` branch. No patches or patch queues are u
 1. Merge
 1. Tag and release
 
+## Upstream is a tarball
+1. Create repo with `gbp import-orig`
+1. Create packaging with `dh_make`
+1. Add, modify, and remove patches with `gbp pq import` and `gbp pq export`
+1. Import new upstream versions with `gbp import-orig --uscan`
+
 ## Demo of creating a Debian fork and an initial release
 ```bash
 PKG=net-snmp
