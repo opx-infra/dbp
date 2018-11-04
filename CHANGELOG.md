@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+
+## [18.11.0] - 2018/11/03
 ### Fixed
 - "the input device is not a TTY" Docker run and exec error
 
@@ -134,7 +136,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.10.7...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.11.0...HEAD
+[18.11.0]: https://github.com/opx-infra/dbp/compare/v18.10.7...v18.11.0
 [18.10.7]: https://github.com/opx-infra/dbp/compare/v18.10.6...v18.10.7
 [18.10.6]: https://github.com/opx-infra/dbp/compare/v18.10.5...v18.10.6
 [18.10.5]: https://github.com/opx-infra/dbp/compare/v18.10.4...v18.10.5
