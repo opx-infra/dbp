@@ -5,9 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+### Fixed
+- "the input device is not a TTY" Docker run and exec error
 
 ## [18.10.7] - 2018/10/31
-## Added
+### Added
 - Ability to set container name with `$CNAME` environment variable
 
 ### Changed

@@ -25,6 +25,7 @@ else:
         os.getenv("USER"), Path.cwd().stem, os.getppid()
     )
 
+DOCKER_INTERACTIVE = "-it" if sys.stdin.isatty() else "-t"
 ENV_UID = "-e=UID={}".format(os.getuid())
 ENV_GID = "-e=GID={}".format(os.getgid())
 ENV_TZ = "-e=TZ={}".format("/".join(Path("/etc/localtime").resolve().parts[-2:]))
@@ -157,7 +158,7 @@ def cmd_shell(args: argparse.Namespace) -> int:
     cmd = [
         "docker",
         "exec",
-        "-it",
+        DOCKER_INTERACTIVE,
         "--user=build",
         deb_build_options_string(args.debug, 0),
         ENV_UID,
@@ -199,7 +200,7 @@ def dexec_buildpackage(
     cmd = [
         "docker",
         "exec",
-        "-it" if sys.stdin.isatty() else "-t",
+        DOCKER_INTERACTIVE,
         "--user=build",
         "--workdir=/mnt/{}".format(target.stem),
         deb_build_options_string(debug, 0),
@@ -288,7 +289,7 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
         "docker",
         "run",
         "-d",
-        "-it",
+        DOCKER_INTERACTIVE,
         "--name={}".format(CONTAINER_NAME),
         "--hostname={}".format(dist),
         "-v={}:/mnt".format(Path.cwd()),
