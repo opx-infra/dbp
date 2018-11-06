@@ -78,11 +78,11 @@ def cmd_build(args: argparse.Namespace) -> int:
             args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
 
     if not args.targets:
-        return 0
+        return rc
 
     if args.print:
         print(" ".join([p.stem for p in args.targets]))
-        return 0
+        return rc
 
     if docker_container_exists():
         remove = False
@@ -114,7 +114,7 @@ def cmd_build(args: argparse.Namespace) -> int:
     if remove:
         docker_remove_container()
 
-    return 0
+    return rc
 
 
 def cmd_pull(args: argparse.Namespace) -> int:

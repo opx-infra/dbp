@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+### Fixed
+- Return code of 0 on failed builds instead of !0
 
 ## [18.11.0] - 2018/11/03
 ### Fixed
