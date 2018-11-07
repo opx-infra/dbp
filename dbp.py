@@ -17,7 +17,7 @@ import controlgraph
 import networkx as nx
 
 IMAGE = "opxhub/gbp"
-IMAGE_VERSION = "v2.0.3"
+IMAGE_VERSION = "v2.0.4"
 if "CNAME" in os.environ:
     CONTAINER_NAME = os.getenv("CNAME")
 else:
@@ -104,9 +104,9 @@ def cmd_build(args: argparse.Namespace) -> int:
         )
     )
     for t in args.targets:
-        sys.stdout.write("--- cd {0}; gbp buildpackage {1}\n".format(t.stem, args.gbp))
+        sys.stdout.write("--- cd {}; debuild\n".format(t.stem))
         sys.stdout.flush()
-        rc = dexec_buildpackage(args.dist, t, args.extra_sources, args.gbp, args.debug)
+        rc = dexec_debuild(args.dist, t, args.extra_sources, args.debug)
         if rc != 0:
             L.error("Could not build package {}".format(t.stem))
             break
@@ -215,6 +215,35 @@ def dexec_buildpackage(
         "buildpackage",
     ]
     cmd.extend(shlex.split(gbp_options))
+
+    return irun(cmd)
+
+
+def dexec_debuild(dist: str, target: Path, sources: str, debug=False) -> int:
+    """Runs debuild
+
+    Container must already be started.
+    """
+    if not target.exists():
+        L.error("Build target `{}` does not exist".format(target))
+        return 1
+
+    cmd = [
+        "docker",
+        "exec",
+        DOCKER_INTERACTIVE,
+        "--user=build",
+        "--workdir=/mnt/{}".format(target.stem),
+        deb_build_options_string(debug, 0),
+        ENV_UID,
+        ENV_GID,
+        ENV_TZ,
+        ENV_MAINT_NAME,
+        ENV_MAINT_MAIL,
+        "-e=EXTRA_SOURCES={}".format(sources),
+        CONTAINER_NAME,
+        "debuild",
+    ]
 
     return irun(cmd)
 
@@ -392,10 +421,7 @@ def main() -> int:
     sps = parser.add_subparsers(help="commands")
 
     # build subcommand
-    build_parser = sps.add_parser("build", help="run gbp buildpackage")
-    build_parser.add_argument(
-        "--gbp", "-g", default="", help="additional git-buildpackage options to pass"
-    )
+    build_parser = sps.add_parser("build", help="run debuild")
     build_parser.add_argument(
         "--print", "-p", action="store_true", help="print build order and exit"
     )

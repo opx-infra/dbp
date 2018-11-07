@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+### Changed
+- `dbp build` now runs `debuild` instead of `gbp buildpackage` to better support `3.0 (git)` packages
+
 ### Fixed
 - Return code of 0 on failed builds instead of !0
 
