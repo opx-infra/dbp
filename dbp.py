@@ -39,6 +39,22 @@ deb     http://deb.openswitch.net/{0} {1} opx opx-non-free
 deb-src http://deb.openswitch.net/{0} {1} opx
 """
 
+MAKE_HEAD = """STAMP = .pkg-stamp
+.PHONY: all
+all:
+ALL_REPOS = \\
+"""
+MAKE_TAIL = """ALL_REPO_STAMPS := $(patsubst %,%/${STAMP},${ALL_REPOS})
+TIMESTAMP = $(shell date '+%F %T')
+
+all: ${ALL_REPO_STAMPS}
+
+${ALL_REPO_STAMPS}: REPO = $(notdir ${@D})
+${ALL_REPO_STAMPS}: LOG = ${REPO}.log
+${ALL_REPO_STAMPS}:
+	@echo ${TIMESTAMP} Starting dbp build ${REPO}
+	@dbp build ${REPO} >${LOG} 2>&1
+	@: >$@"""
 
 L = logging.getLogger("dbp")
 L.addHandler(logging.NullHandler())
@@ -115,6 +131,13 @@ def cmd_build(args: argparse.Namespace) -> int:
         docker_remove_container()
 
     return rc
+
+
+def cmd_makefile(args: argparse.Namespace) -> int:
+    dirs = [p for p in Path.cwd().iterdir() if p.is_dir()]
+    g = controlgraph.graph(controlgraph.parse_all_controlfiles(dirs))
+    print(makefile(g))
+    return 0
 
 
 def cmd_pull(args: argparse.Namespace) -> int:
@@ -385,6 +408,31 @@ def deb_build_options_string(debug: bool, parallel=0) -> str:
     return "-e=DEB_BUILD_OPTIONS={}".format(" ".join(opts))
 
 
+def makefile(g: nx.DiGraph) -> str:
+    bob = ""  # the builder
+    dep_lines = []  # makefile dependency lines to print
+
+    bob += MAKE_HEAD
+    nodes = sorted([n for n in nx.dfs_postorder_nodes(g)])
+    for n in nodes:
+        if n == nodes[len(nodes) - 1]:
+            bob += "\t{n}\n".format(n=n)
+        else:
+            bob += "\t{n} \\\n".format(n=n)
+        for dep in g.successors(n):
+            temp = ""
+            temp += str(n)
+            temp += "/${STAMP}: "
+            temp += str(dep)
+            temp += "/${STAMP}\n"
+            dep_lines.append(temp)
+    for line in dep_lines:
+        bob += line
+    bob += MAKE_TAIL
+
+    return bob
+
+
 ### Main ##############################################################################
 
 
@@ -439,6 +487,10 @@ def main() -> int:
         "--no-isolates", action="store_true", help="do not build free-standing repos"
     )
     build_parser.set_defaults(func=cmd_build)
+
+    # makefile subcommand
+    makefile_parser = sps.add_parser("makefile", help="create Makefile")
+    makefile_parser.set_defaults(func=cmd_makefile)
 
     # pull subcommand
     pull_parser = sps.add_parser("pull", help="pull latest images")

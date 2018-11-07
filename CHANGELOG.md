@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+### Added
+- Subcommand for creating parallel Makefile
 
 ## [18.11.1] - 2018/11/07
 ### Changed

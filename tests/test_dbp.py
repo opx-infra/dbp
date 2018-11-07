@@ -1,4 +1,13 @@
+from networkx import DiGraph
+
 import dbp
+
+MAKEFILE = dbp.MAKE_HEAD
+MAKEFILE += """\t1 \\
+\t2
+1/${STAMP}: 2/${STAMP}
+"""
+MAKEFILE += dbp.MAKE_TAIL
 
 
 def test_deb_build_options_string():
@@ -20,3 +29,11 @@ def test_irun():
     assert dbp.irun(["false"], False) == 1
     assert dbp.irun([], True) == -1
     assert dbp.irun([], False) == -1
+
+
+def test_makefile():
+    g = DiGraph()
+    g.add_node(1)
+    g.add_node(2)
+    g.add_edge(1, 2)
+    assert dbp.makefile(g) == MAKEFILE
