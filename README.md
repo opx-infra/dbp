@@ -12,7 +12,7 @@ Docker-buildpackage is a tool for building OpenSwitch Debian packages.
 * Docker-buildpackage has two parts: a cli app (`dbp`) and a Docker image ([`opxhub/gbp`](https://github.com/opx-infra/gbp-docker))
 * `dbp` manages the Docker image and container lifecycle
 * `dbp` resolves the local build dependency graph
-* `dbp` runs [Git-buildpackage](https://honk.sigxcpu.org/piki/projects/git-buildpackage/) with [this configuration](https://github.com/opx-infra/gbp-docker/blob/master/assets/gbp.conf) to build packages
+* `dbp` runs [Debuild](https://manpages.debian.org/stretch/devscripts/debuild.1.en.html) with [this configuration](https://github.com/opx-infra/gbp-docker/blob/master/assets/devscripts) to build packages
 
 ## Install
 
