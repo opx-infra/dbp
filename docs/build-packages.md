@@ -22,7 +22,7 @@ $ ls pool/stretch-amd64/opx-logging/*.changes
 pool/stretch-amd64/opx-logging/opx-logging_2.1.1_amd64.changes
 ```
 
-Use *dbp build* without any arguments to build a full workspace. This runs `cd $repo; debuild` for each repository with a `debian/control` file.
+Use *dbp build* without any arguments to build a full workspace serially. This runs `cd $repo; debuild` for each repository with a `debian/control` file.
 ```bash
 $ dbp build
 ```
@@ -31,6 +31,11 @@ The `--print` flag can be used to preview the build order.
 ```bash
 $ dbp build --print
 opx-logging opx-common-utils
+```
+
+To build in parallel, use the `makefile` subcommand.
+```bash
+dbp makefile >Makefile && make -j
 ```
 
 ## Interactive package builds
