@@ -8,6 +8,12 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Subcommand for creating parallel Makefile
 
+### Changed
+- `debuild` is *only* run for `3.0 (git)` packages
+
+### Fixed
+- Missing source tarball (now `gbp buildpackage` will run)
+
 ## [18.11.1] - 2018/11/07
 ### Changed
 - `dbp build` now runs `debuild` instead of `gbp buildpackage` to better support `3.0 (git)` packages
