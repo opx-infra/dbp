@@ -120,9 +120,27 @@ def cmd_build(args: argparse.Namespace) -> int:
         )
     )
     for t in args.targets:
-        sys.stdout.write("--- cd {}; debuild\n".format(t.stem))
-        sys.stdout.flush()
-        rc = dexec_debuild(args.dist, t, args.extra_sources, args.debug)
+        pkg_format = "1.0"
+
+        if Path(t / "debian/source/format").exists():
+            pkg_format = Path(t / "debian/source/format").read_text().strip()
+
+        if args.with_debuild:
+            pkg_format = "3.0 (git)"
+        if args.with_gbp:
+            pkg_format = "3.0 (native)"
+
+        if "3.0 (git)" in pkg_format:
+            sys.stdout.write("--- cd {}; debuild\n".format(t.stem))
+            sys.stdout.flush()
+            rc = dexec_debuild(args.dist, t, args.extra_sources, args.debug)
+        else:
+            sys.stdout.write("--- cd {}; gbp buildpackage\n".format(t.stem))
+            sys.stdout.flush()
+            rc = dexec_buildpackage(
+                args.dist, t, args.extra_sources, args.gbp, args.debug
+            )
+
         if rc != 0:
             L.error("Could not build package {}".format(t.stem))
             break
@@ -469,7 +487,10 @@ def main() -> int:
     sps = parser.add_subparsers(help="commands")
 
     # build subcommand
-    build_parser = sps.add_parser("build", help="run debuild")
+    build_parser = sps.add_parser("build", help="run git-buildpackage or debuild")
+    build_parser.add_argument(
+        "--gbp", "-g", default="", help="additional git-buildpackage options to pass"
+    )
     build_parser.add_argument(
         "--print", "-p", action="store_true", help="print build order and exit"
     )
@@ -485,6 +506,13 @@ def main() -> int:
     )
     build_isolates.add_argument(
         "--no-isolates", action="store_true", help="do not build free-standing repos"
+    )
+    build_command = build_parser.add_mutually_exclusive_group()
+    build_command.add_argument(
+        "--with-debuild", action="store_true", help="force building with debuild"
+    )
+    build_command.add_argument(
+        "--with-gbp", action="store_true", help="force building with gbp"
     )
     build_parser.set_defaults(func=cmd_build)
 
