@@ -22,7 +22,7 @@ $ ls pool/stretch-amd64/opx-logging/*.changes
 pool/stretch-amd64/opx-logging/opx-logging_2.1.1_amd64.changes
 ```
 
-Use *dbp build* without any arguments to build a full workspace serially. This runs `cd $repo; debuild` for each repository with a `debian/control` file.
+Use *dbp build* without any arguments to build a full workspace serially. This runs `cd $repo; gbp buildpackage` for each repository with a `debian/control` file.
 ```bash
 $ dbp build
 ```
@@ -49,7 +49,7 @@ $ dbp rm
 !!! tip
     Running `dbp build opx-logging` is functionally equivalent to
     ```bash
-    $ dbp shell -c 'cd opx-logging; debuild'
+    $ dbp shell -c 'cd opx-logging; gbp buildpackage'
     ```
 
 Running *dbp shell* launches a Bash session, where the standard Debian workflow is available.
@@ -59,7 +59,7 @@ $ dbp shell
 build@stretch:/mnt$ cd opx-logging
 
 # Install build dependencies and build the package
-build@stretch:/mnt/opx-logging$ debuild
+build@stretch:/mnt/opx-logging$ gbp buildpackage
 
 # On failed builds, avoid the long gbp build time by quickly rebuilding
 build@stretch:/mnt/opx-logging$ fakeroot debian/rules binary
@@ -83,5 +83,11 @@ $ CNAME=CONSTANT dbp -vv rm
 Build unstripped, unoptimized packages with the `--debug` flag. Both *dbp shell* and *dbp build* support it.
 ```bash
 $ dbp --debug build opx-logging
-$ dbp --debug shell -c 'cd opx-logging; debuild'
+$ dbp --debug shell -c 'cd opx-logging; gbp buildpackage'
+```
+
+## Pass additional Git-buildpackage options
+Use the `--gbp` flag with *dbp build*.
+```bash
+dbp build opx-logging --gbp="--git-tag-only"
 ```
