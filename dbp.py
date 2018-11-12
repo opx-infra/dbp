@@ -51,7 +51,7 @@ ${ALL_REPO_STAMPS}: REPO = $(notdir ${@D})
 ${ALL_REPO_STAMPS}: LOG = ${REPO}.log
 ${ALL_REPO_STAMPS}:
 	@echo ${TIMESTAMP} Starting dbp build ${REPO}
-	@dbp build ${REPO} >${LOG} 2>&1
+	@CNAME="$${USER}-dbp-parallel-${REPO}" dbp build ${REPO} >${LOG} 2>&1
 	@: >$@"""
 
 L = logging.getLogger("dbp")
