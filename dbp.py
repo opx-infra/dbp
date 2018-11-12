@@ -73,7 +73,13 @@ def cmd_build(args: argparse.Namespace) -> int:
 
     # generate build order through dfs on builddepends graph
     if not args.targets:
-        dirs = [p for p in Path.cwd().iterdir() if p.is_dir()]
+        try:
+            workspace = get_workspace(Path.cwd())
+        except WorkspaceNotFoundError:
+            L.error("Workspace not found.")
+            return 1
+
+        dirs = [p for p in workspace.iterdir() if p.is_dir()]
         G = controlgraph.graph(controlgraph.parse_all_controlfiles(dirs))
 
         isolates = list(nx.isolates(G))
@@ -92,6 +98,9 @@ def cmd_build(args: argparse.Namespace) -> int:
             args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
         else:
             args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
+
+        # Get path relative to workspace
+        args.targets = [Path(workspace / p) for p in args.targets]
 
     if not args.targets:
         return rc
@@ -355,6 +364,12 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
         L.info("Container already exists")
         return 0
 
+    try:
+        workspace = get_workspace(Path.cwd())
+    except WorkspaceNotFoundError:
+        L.error("Workspace not found.")
+        return 1
+
     cmd = [
         "docker",
         "run",
@@ -362,7 +377,7 @@ def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
         DOCKER_INTERACTIVE,
         "--name={}".format(CONTAINER_NAME),
         "--hostname={}".format(dist),
-        "-v={}:/mnt".format(Path.cwd()),
+        "-v={}:/mnt".format(workspace),
     ]
 
     gitconfig = Path(Path.home() / ".gitconfig")
@@ -426,6 +441,26 @@ def deb_build_options_string(debug: bool, parallel=0) -> str:
     return "-e=DEB_BUILD_OPTIONS={}".format(" ".join(opts))
 
 
+def get_workspace(path: Path) -> Path:
+    """Search up until a directory with Debian repos is found.
+
+    A "Debian repo" is a directory with a ./debian/control file.
+
+    Returns the Path or raises a WorkspaceNotFoundError.
+    """
+    for p in path.iterdir():
+        if p.is_dir():
+            if Path(p / "debian/control").exists():
+                return path
+
+    if path == Path(path.anchor):
+        raise WorkspaceNotFoundError(
+            "No workspace found at {} or any directories above it.".format(path)
+        )
+
+    return get_workspace(path.parent)
+
+
 def makefile(g: nx.DiGraph) -> str:
     bob = ""  # the builder
     dep_lines = []  # makefile dependency lines to print
@@ -449,6 +484,10 @@ def makefile(g: nx.DiGraph) -> str:
     bob += MAKE_TAIL
 
     return bob
+
+
+class WorkspaceNotFoundError(FileNotFoundError):
+    pass
 
 
 ### Main ##############################################################################

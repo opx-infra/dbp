@@ -13,6 +13,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ### Fixed
 - Missing source tarball (now `gbp buildpackage` will run)
+- `dbp build` and `dbp shell` now work from within repositories (not just the workspace)
 
 ## [18.11.1] - 2018/11/07
 ### Changed
