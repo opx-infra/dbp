@@ -21,9 +21,7 @@ IMAGE_VERSION = "v2.0.4"
 if "CNAME" in os.environ:
     CONTAINER_NAME = os.getenv("CNAME")
 else:
-    CONTAINER_NAME = "{}-dbp-{}-{}".format(
-        os.getenv("USER"), Path.cwd().stem, os.getppid()
-    )
+    CONTAINER_NAME = "{}-dbp-{}".format(os.getenv("USER"), Path.cwd().stem)
 
 DOCKER_INTERACTIVE = "-it" if sys.stdin.isatty() else "-t"
 ENV_UID = "-e=UID={}".format(os.getuid())

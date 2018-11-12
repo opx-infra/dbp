@@ -10,6 +10,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ### Changed
 - `debuild` is *only* run for `3.0 (git)` packages
+- Shell process ID has been removed from container name
 
 ### Fixed
 - Missing source tarball (now `gbp buildpackage` will run)
