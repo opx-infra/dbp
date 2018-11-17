@@ -27,9 +27,9 @@ Use *dbp build* without any arguments to build a full workspace serially. This r
 $ dbp build
 ```
 
-The `--print` flag can be used to preview the build order.
+The `--print-tergets` flag can be used to preview the build order.
 ```bash
-$ dbp build --print
+$ dbp build --print-targets
 opx-logging opx-common-utils
 ```
 
@@ -69,14 +69,14 @@ build@stretch:/mnt/opx-logging$ fakeroot debian/rules clean
 build@stretch:/mnt/opx-logging$ exit
 ```
 
-*dbp run* creates a container based on the current user, directory, and shell process id. To always use the same container name (or start a shell in someone else's), use the `$CNAME` environment variable.
+*dbp run* creates a container based on the current user and directory. To always use the same container name (or start a shell in someone else's), use the `--cname` environment variable.
 
 ```bash
-$ dbp -vv rm
-[DEBUG] Running docker inspect user-dbp-demo-22222
+$ dbp rm
+Starting container user-dbp-demo...
 
-$ CNAME=CONSTANT dbp -vv rm
-[DEBUG] Running docker inspect CONSTANT
+$ dbp --cname DEMO rm
+Starting container DEMO...
 ```
 
 ## Debug builds
