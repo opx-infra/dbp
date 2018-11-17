@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+### Removed
+- Isolate ordering options for dbp build
 
 ## [18.11.2] - 2018/11/12
 ### Added

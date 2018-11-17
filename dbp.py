@@ -2,484 +2,178 @@
 
 __version__ = "18.11.2"
 
-import argparse
-import logging
 import os
 import shlex
 import shutil
+import subprocess
 import sys
 from pathlib import Path
-from subprocess import DEVNULL, PIPE, STDOUT, run
 from time import sleep
 from typing import List
 
+import click
 import controlgraph
+import docker
 import networkx as nx
 
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 IMAGE = "opxhub/gbp"
 IMAGE_VERSION = "v2.0.4"
-if "CNAME" in os.environ:
-    CONTAINER_NAME = os.getenv("CNAME")
-else:
-    CONTAINER_NAME = "{}-dbp-{}".format(os.getenv("USER"), Path.cwd().stem)
-
-DOCKER_INTERACTIVE = "-it" if sys.stdin.isatty() else "-t"
-ENV_UID = "-e=UID={}".format(os.getuid())
-ENV_GID = "-e=GID={}".format(os.getgid())
-ENV_TZ = "-e=TZ={}".format("/".join(Path("/etc/localtime").resolve().parts[-2:]))
-ENV_MAINT_NAME = "-e=DEBFULLNAME={}".format(os.getenv("DEBFULLNAME", "Dell EMC"))
-ENV_MAINT_MAIL = "-e=DEBEMAIL={}".format(
-    os.getenv("DEBEMAIL", "ops-dev@lists.openswitch.net")
-)
-
-OPX_DEFAULT_SOURCES = """\
-deb     http://deb.openswitch.net/{0} {1} opx opx-non-free
-deb-src http://deb.openswitch.net/{0} {1} opx
-"""
-
-MAKE_HEAD = """STAMP = .pkg-stamp
-.PHONY: all
-all:
-ALL_REPOS = \\
-"""
-MAKE_TAIL = """ALL_REPO_STAMPS := $(patsubst %,%/${STAMP},${ALL_REPOS})
-TIMESTAMP = $(shell date '+%F %T')
-
-all: ${ALL_REPO_STAMPS}
-
-${ALL_REPO_STAMPS}: REPO = $(notdir ${@D})
-${ALL_REPO_STAMPS}: LOG = ${REPO}.log
-${ALL_REPO_STAMPS}:
-	@echo ${TIMESTAMP} Starting dbp build ${REPO}
-	@CNAME="$${USER}-dbp-parallel-${REPO}" dbp build ${REPO} >${LOG} 2>&1
-	@: >$@"""
-
-L = logging.getLogger("dbp")
-L.addHandler(logging.NullHandler())
+OPX_DEFAULT_SOURCES = "deb http://deb.openswitch.net/{} {} opx opx-non-free"
 
 
-### Commands ##########################################################################
+class Workspace:
+    """Manages the location of the workspace and its container."""
 
+    def __init__(self, cname, debug, dist, extra_sources, image, release):
+        self.debug = debug
+        self.dist = dist
+        self.image = image
+        self.interactive = sys.stdin.isatty()
+        self.release = release
 
-def cmd_build(args: argparse.Namespace) -> int:
-    rc = docker_pull_images(args.image, args.dist, check_first=True)
-    if rc != 0:
-        return rc
+        self.path = Path.cwd()
+        if Path(self.path / ".git").is_dir():
+            self.path = self.path.parent
 
-    rc = 0
-    remove = True
-
-    try:
-        workspace = get_workspace(Path.cwd())
-    except WorkspaceNotFoundError:
-        L.error("Workspace not found.")
-        return 1
-
-    # generate build order through dfs on builddepends graph
-    if not args.targets:
-        dirs = [p for p in workspace.iterdir() if p.is_dir()]
-        G = controlgraph.graph(controlgraph.parse_all_controlfiles(dirs))
-
-        isolates = list(nx.isolates(G))
-        if args.isolates_first:
-            G.remove_nodes_from(isolates)
-            args.targets = [Path(i) for i in isolates] + [
-                Path(n) for n in nx.dfs_postorder_nodes(G)
-            ]
-        elif args.isolates_last:
-            G.remove_nodes_from(isolates)
-            args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)] + [
-                Path(i) for i in isolates
-            ]
-        elif args.no_isolates:
-            G.remove_nodes_from(isolates)
-            args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
+        if cname:
+            self.cname = cname
         else:
-            args.targets = [Path(n) for n in nx.dfs_postorder_nodes(G)]
+            self.cname = "{}-dbp-{}".format(os.getenv("USER"), self.path.stem)
 
-    # Get path relative to workspace
-    args.targets = [Path(workspace / p) for p in args.targets]
+        # Sources order of preference
+        # 1. extra_sources variable (set to "" for none)
+        # 2. ./extra_sources.list file
+        # 3. $HOME/.extra_sources.list file
+        # 4. Default OPX sources
+        if extra_sources == "DEFAULT":
+            sources = [
+                self.path / "extra_sources.list",
+                Path.home() / ".extra_sources.list",
+            ]
+            for s in sources:
+                if s.exists():
+                    extra_sources = s.read_text()
+                    self.extra_sources = extra_sources
+                    break
 
-    if not args.targets:
-        return rc
+        if extra_sources == "DEFAULT":
+            self.extra_sources = OPX_DEFAULT_SOURCES.format(dist, release)
+        else:
+            self.extra_sources = extra_sources
 
-    if args.print:
-        print(" ".join([p.stem for p in args.targets]))
-        return rc
+        self.env = {
+            "DEB_BUILD_OPTIONS": "nostrip noopt debug" if self.debug else "",
+            "DEBEMAIL": os.getenv("DEBEMAIL", "ops-dev@lists.openswitch.net"),
+            "DEBFULLNAME": os.getenv("DEBFULLNAME", "Dell EMC"),
+            "EXTRA_SOURCES": self.extra_sources,
+            "GID": os.getgid(),
+            "TZ": "/".join(Path("/etc/localtime").resolve().parts[-2:]),
+            "UID": os.getuid(),
+        }
 
-    if docker_container_exists():
-        remove = False
-    else:
-        rc = docker_run(args.image, args.dist, args.extra_sources, dev=False)
-        if rc != 0:
-            L.error("Could not run container")
-            return rc
+        self.volumes = {str(self.path): {"bind": "/mnt", "mode": "rw"}}
+        gitconfig = Path(Path.home() / ".gitconfig")
+        if gitconfig.exists():
+            self.volumes[str(gitconfig)] = {
+                "bind": "/etc/skel/.gitconfig",
+                "mode": "ro",
+            }
 
-    if not docker_container_running(args.dist):
-        rc = docker_start(args.dist)
-        if rc != 0:
-            L.error("Could not start stopped container")
-            return rc
+        self.client = docker.from_env()
 
-    sys.stdout.write(
-        "--- Building {} repositories: {}\n".format(
-            len(args.targets), " ".join([str(t.stem) for t in args.targets])
-        )
-    )
-    for t in args.targets:
+    def builddepends_graph(self) -> nx.DiGraph:
+        dirs = [p for p in self.path.iterdir() if p.is_dir()]
+        return controlgraph.graph(controlgraph.parse_all_controlfiles(dirs))
+
+    def buildpackage(self, directory: Path, gbp_options: str) -> int:
+        """Runs gbp buildpackage (or debuild for 3.0 (git) packages) in the container."""
         pkg_format = "1.0"
-
-        if Path(t / "debian/source/format").exists():
-            pkg_format = Path(t / "debian/source/format").read_text().strip()
-
-        if args.with_debuild:
-            pkg_format = "3.0 (git)"
-        if args.with_gbp:
-            pkg_format = "3.0 (native)"
+        if Path(directory / "debian/source/format").exists():
+            pkg_format = Path(directory / "debian/source/format").read_text().strip()
 
         if "3.0 (git)" in pkg_format:
-            sys.stdout.write("--- cd {}; debuild\n".format(t.stem))
-            sys.stdout.flush()
-            rc = dexec_debuild(args.dist, t, args.extra_sources, args.debug)
+            build_cmd = ["debuild"]
         else:
-            sys.stdout.write("--- cd {}; gbp buildpackage\n".format(t.stem))
-            sys.stdout.flush()
-            rc = dexec_buildpackage(
-                args.dist, t, args.extra_sources, args.gbp, args.debug
-            )
+            build_cmd = ["gbp", "buildpackage"]
 
-        if rc != 0:
-            L.error("Could not build package {}".format(t.stem))
-            break
+        if gbp_options and build_cmd[0] == "gbp":
+            build_cmd.extend(shlex.split(gbp_options))
 
-    if remove:
-        docker_remove_container()
+        rc = self.docker_exec(build_cmd, "/mnt/{}".format(directory))
 
-    return rc
-
-
-def cmd_makefile(args: argparse.Namespace) -> int:
-    dirs = [p for p in Path.cwd().iterdir() if p.is_dir()]
-    g = controlgraph.graph(controlgraph.parse_all_controlfiles(dirs))
-    print(makefile(g))
-    return 0
-
-
-def cmd_pull(args: argparse.Namespace) -> int:
-    return docker_pull_images(args.image, args.dist)
-
-
-def cmd_rm(args: argparse.Namespace) -> int:
-    docker_remove_container()
-    return 0
-
-
-def cmd_run(args: argparse.Namespace) -> int:
-    rc = docker_pull_images(args.image, args.dist, check_first=True)
-    if rc != 0:
         return rc
 
-    return docker_run(args.image, args.dist, args.extra_sources, dev=True)
-
-
-def cmd_shell(args: argparse.Namespace) -> int:
-    rc = docker_pull_images(args.image, args.dist, check_first=True)
-    if rc != 0:
-        return rc
-
-    remove = True
-
-    if docker_container_exists():
-        remove = False
-    else:
-        rc = docker_run(args.image, args.dist, args.extra_sources, dev=True)
-        if rc != 0:
-            L.error("Could not run container")
-            return rc
-
-    if not docker_container_running(args.dist):
-        rc = docker_start(args.dist)
-        if rc != 0:
-            L.error("Could not start stopped container")
-            return rc
-
-    cmd = [
-        "docker",
-        "exec",
-        DOCKER_INTERACTIVE,
-        "--user=build",
-        deb_build_options_string(args.debug, 0),
-        ENV_UID,
-        ENV_GID,
-        ENV_TZ,
-        ENV_MAINT_NAME,
-        ENV_MAINT_MAIL,
-        "-e=EXTRA_SOURCES={}".format(args.extra_sources),
-        CONTAINER_NAME,
-        "bash",
-        "-l",
-    ]
-
-    if args.command:
-        cmd.extend(["-c", args.command])
-
-    rc = irun(cmd, quiet=False)
-
-    if remove:
-        docker_remove_container()
-
-    return rc
-
-
-### Docker functions ##################################################################
-
-
-def dexec_buildpackage(
-    dist: str, target: Path, sources: str, gbp_options: str, debug=False
-) -> int:
-    """Runs gbp buildpackage
-
-    Container must already be started.
-    """
-    if not target.exists():
-        L.error("Build target `{}` does not exist".format(target))
-        return 1
-
-    cmd = [
-        "docker",
-        "exec",
-        DOCKER_INTERACTIVE,
-        "--user=build",
-        "--workdir=/mnt/{}".format(target.stem),
-        deb_build_options_string(debug, 0),
-        ENV_UID,
-        ENV_GID,
-        ENV_TZ,
-        ENV_MAINT_NAME,
-        ENV_MAINT_MAIL,
-        "-e=EXTRA_SOURCES={}".format(sources),
-        CONTAINER_NAME,
-        "gbp",
-        "buildpackage",
-    ]
-    cmd.extend(shlex.split(gbp_options))
-
-    return irun(cmd)
-
-
-def dexec_debuild(dist: str, target: Path, sources: str, debug=False) -> int:
-    """Runs debuild
-
-    Container must already be started.
-    """
-    if not target.exists():
-        L.error("Build target `{}` does not exist".format(target))
-        return 1
-
-    cmd = [
-        "docker",
-        "exec",
-        DOCKER_INTERACTIVE,
-        "--user=build",
-        "--workdir=/mnt/{}".format(target.stem),
-        deb_build_options_string(debug, 0),
-        ENV_UID,
-        ENV_GID,
-        ENV_TZ,
-        ENV_MAINT_NAME,
-        ENV_MAINT_MAIL,
-        "-e=EXTRA_SOURCES={}".format(sources),
-        CONTAINER_NAME,
-        "debuild",
-    ]
-
-    return irun(cmd)
-
-
-def docker_container_exists() -> bool:
-    """Returns true if our dbp container can be inspected"""
-    return irun(["docker", "inspect", CONTAINER_NAME], quiet=True) == 0
-
-
-def docker_container_running(dist: str) -> bool:
-    """Returns true if our dbp container is running"""
-    proc = run(
-        ["docker", "inspect", CONTAINER_NAME, "--format={{.State.Running}}"],
-        stdout=PIPE,
-        stderr=DEVNULL,
-    )
-    return proc.returncode == 0 and "true" in str(proc.stdout)
-
-
-def docker_image_name(image: str, dist: str, dev: bool) -> str:
-    """Returns the Docker image to use, allowing for custom images."""
-    if ":" in image:
-        return image
-
-    if dev:
-        template = "{}:{}-{}-dev"
-    else:
-        template = "{}:{}-{}"
-
-    return template.format(image, IMAGE_VERSION, dist)
-
-
-def docker_pull_images(image: str, dist: str, check_first=False) -> int:
-    """Runs docker pull for both build and development images and returns the return code"""
-    if ":" in image:
-        # manually specified image tag, assume no pull needed
-        return 0
-
-    if check_first:
-        tag = docker_image_name(image, dist, dev=True)[len(image) + 1 :]
-        proc = run(["docker", "images"], stdout=PIPE, stderr=STDOUT)
-        if image in proc.stdout.decode("utf-8") and tag in proc.stdout.decode("utf-8"):
-            return 0
-
-    print("Pulling Docker image {}".format(image))
-
-    cmd = ["docker", "pull", docker_image_name(image, dist, False)]
-    rc = irun(cmd)
-    if rc != 0:
-        return rc
-
-    cmd = ["docker", "pull", docker_image_name(image, dist, True)]
-    return irun(cmd)
-
-
-def docker_remove_container() -> int:
-    """Runs docker rm -f for the dbp container"""
-    if docker_container_exists():
-        cmd = ["docker", "rm", "-f", CONTAINER_NAME]
-        return irun(cmd, quiet=True)
-
-    L.info("Container does not exist.")
-    return 1
-
-
-def docker_run(image: str, dist: str, sources: str, dev=True) -> int:
-    if docker_container_exists():
-        L.info("Container already exists")
-        return 0
-
-    try:
-        workspace = get_workspace(Path.cwd())
-    except WorkspaceNotFoundError:
-        L.error("Workspace not found.")
-        return 1
-
-    cmd = [
-        "docker",
-        "run",
-        "-d",
-        DOCKER_INTERACTIVE,
-        "--name={}".format(CONTAINER_NAME),
-        "--hostname={}".format(dist),
-        "-v={}:/mnt".format(workspace),
-    ]
-
-    gitconfig = Path(Path.home() / ".gitconfig")
-    if gitconfig.exists():
-        cmd.append("-v={}:/etc/skel/.gitconfig:ro".format(gitconfig))
-
-    cmd.extend(
-        [
-            ENV_UID,
-            ENV_GID,
-            ENV_TZ,
-            ENV_MAINT_NAME,
-            ENV_MAINT_MAIL,
-            "-e=EXTRA_SOURCES={}".format(sources),
-            docker_image_name(image, dist, dev),
-            "bash",
-            "-l",
+    def docker_exec_cmd(self, command: List[str], workdir="/mnt") -> List[str]:
+        """Gets the full docker exec command."""
+        cmd = [
+            "docker",
+            "exec",
+            "-it" if self.interactive else "-t",
+            "--user=build",
+            "--workdir={}".format(workdir),
         ]
-    )
+        for k, v in self.env.items():
+            cmd.append("-e={}={}".format(k, v))
+        cmd.append(self.cname)
+        cmd.extend(command)
+        return cmd
 
-    rc = irun(cmd, quiet=True)
-    # wait for user to be created
-    sleep(1)
-    return rc
+    def docker_exec(self, command: List[str], workdir="/mnt") -> int:
+        """Low level function to execute a command in an already running container."""
+        if not self.container:
+            return 1
 
-
-def docker_start(dist: str) -> int:
-    """Runs docker start and returns the return code"""
-    cmd = ["docker", "start", CONTAINER_NAME]
-    return irun(cmd, quiet=True)
-
-
-### Utilities #########################################################################
-
-
-def irun(cmd: List[str], quiet=False) -> int:
-    """irun runs an interactive command.
-
-    irun returns -1 when no command is specified.
-    """
-    if len(cmd) == 0:
-        return -1
-
-    L.debug("Running {}".format(" ".join(cmd)))
-    if quiet:
-        proc = run(cmd, stdin=sys.stdin, stdout=DEVNULL, stderr=DEVNULL)
-    else:
-        proc = run(cmd, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
-    return proc.returncode
-
-
-def deb_build_options_string(debug: bool, parallel=0) -> str:
-    opts = []
-
-    if debug:
-        opts.extend(["nostrip", "noopt", "debug"])
-
-    if parallel > 0:
-        opts.append("parallel={}".format(parallel))
-
-    return "-e=DEB_BUILD_OPTIONS={}".format(" ".join(opts))
-
-
-def get_workspace(path: Path) -> Path:
-    """Check if the current directory is a workspace and return it.
-
-    If not, check if the parent directory is a workspace and return it.
-    If not, return the originally supplied path.
-    A "Debian repo" is a directory with a ./debian/control file that you own.
-    Returns a Path or raises a WorkspaceNotFoundError.
-    """
-    for p in path.iterdir():
-        if p.is_dir():
-            try:
-                if Path(p / "debian/control").exists():
-                    owner = Path(p / "debian/control").owner()
-                    if owner == os.getenv("USER", ""):
-                        return path
-            except PermissionError:
-                continue
-
-    if path == Path(path.anchor):
-        raise WorkspaceNotFoundError(
-            "No workspace found at {} or any directories above it.".format(path)
+        full_cmd = self.docker_exec_cmd(command, workdir)
+        proc = subprocess.run(
+            full_cmd, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr
         )
+        return proc.returncode
 
-    for p in path.parent.iterdir():
-        if p.is_dir():
-            try:
-                if Path(p / "debian/control").exists():
-                    owner = Path(p / "debian/control").owner()
-                    if owner == os.getenv("USER", ""):
-                        return path.parent
-            except PermissionError:
-                continue
+    def docker_remove(self) -> int:
+        """Low level function to remove our running container."""
+        try:
+            container = self.client.containers.get(self.cname)
+        except docker.errors.NotFound:
+            return
 
-    return path
+        click.echo("Removing container {}...".format(self.cname))
+        container.remove(force=True)
+
+    def docker_run(self) -> bool:
+        """Runs the container and returns True if it didn't exist before."""
+        containers = self.client.containers.list(filters={"name": self.cname})
+        if containers:
+            self.container = containers[0]
+            return False
+
+        click.echo("Starting container {}...".format(self.cname))
+        self.container = self.client.containers.run(
+            image=self.image,
+            detach=True,
+            auto_remove=False,
+            environment=self.env,
+            hostname=self.dist,
+            init=True,
+            name=self.cname,
+            remove=False,
+            stdin_open=sys.stdin.isatty(),
+            tty=True,
+            volumes=self.volumes,
+        )
+        # leave enough time for entrypoint to run and our user to be created
+        sleep(1)
+        return True
 
 
-def makefile(g: nx.DiGraph) -> str:
+def generate_makefile(g: nx.DiGraph) -> str:
     bob = ""  # the builder
     dep_lines = []  # makefile dependency lines to print
 
-    bob += MAKE_HEAD
+    bob += """.PHONY: all
+all:
+ALL_REPOS = \\
+"""
     nodes = sorted([n for n in nx.dfs_postorder_nodes(g)])
     for n in nodes:
         if n == nodes[len(nodes) - 1]:
@@ -487,153 +181,183 @@ def makefile(g: nx.DiGraph) -> str:
         else:
             bob += "\t{n} \\\n".format(n=n)
         for dep in g.successors(n):
-            temp = ""
-            temp += str(n)
-            temp += "/${STAMP}: "
-            temp += str(dep)
-            temp += "/${STAMP}\n"
-            dep_lines.append(temp)
+            dep_lines.append(".{}.stamp: .{}.stamp\n".format(n, dep))
     for line in dep_lines:
         bob += line
-    bob += MAKE_TAIL
+
+    bob += """ALL_REPO_STAMPS := $(patsubst %,.%.stamp,${ALL_REPOS})
+TIMESTAMP = $(shell date '+%F %T')
+
+all: ${ALL_REPO_STAMPS}
+
+${ALL_REPO_STAMPS}: REPO = $(@:.%.stamp=%)
+${ALL_REPO_STAMPS}: LOG = ${REPO}.log
+${ALL_REPO_STAMPS}:
+\t@echo ${TIMESTAMP} Starting dbp build ${REPO}
+\t@dbp --cname "$${USER}-dbp-parallel-${REPO}" build ${REPO} >${LOG} 2>&1
+\t@: >$@"""
 
     return bob
 
 
-class WorkspaceNotFoundError(FileNotFoundError):
-    pass
+# Command line interface ##############################################################
+
+pass_workspace = click.make_pass_decorator(Workspace)
 
 
-### Main ##############################################################################
+@click.group(context_settings=CONTEXT_SETTINGS)
+@click.option("--cname", envvar="CNAME", metavar="NAME", help="Custom container name.")
+@click.option("--debug", is_flag=True, help="Set nostrip, noopt, debug.")
+@click.option(
+    "--dist",
+    "-d",
+    envvar="DIST",
+    default="stretch",
+    metavar="DIST",
+    help="Debian distribution.",
+)
+@click.option(
+    "--extra-sources",
+    "-e",
+    envvar="EXTRA_SOURCES",
+    default="DEFAULT",
+    metavar="SOURCES",
+    help="Extra Apt sources to add along with OPX.",
+)
+@click.option(
+    "--image",
+    "-i",
+    envvar="IMAGE",
+    default=IMAGE,
+    metavar="IMAGE",
+    help="Docker image.",
+)
+@click.option(
+    "--release",
+    "-r",
+    envvar="RELEASE",
+    default="unstable",
+    metavar="RELEASE",
+    help="OPX release.",
+)
+@click.version_option(__version__)
+@click.pass_context
+def cli(ctx, cname, debug, dist, extra_sources, image, release):
+    """Build Debian packages in a managed Debian development environment."""
+    ctx.obj = Workspace(cname, debug, dist, extra_sources, image, release)
 
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-
-    # general arguments
-    parser.add_argument(
-        "--version", "-V", action="store_true", help="print program version"
-    )
-    parser.add_argument(
-        "--verbose", "-v", help="-v for info, -vv for debug", action="count", default=0
-    )
-    parser.add_argument(
-        "--debug", help="Set nostrip, noopt, debug", action="store_true"
-    )
-    parser.add_argument(
-        "--dist", "-d", help="Debian distribution", default=os.getenv("DIST", "stretch")
-    )
-    parser.add_argument(
-        "--release", "-r", help="OPX release (default: unstable)", default="unstable"
-    )
-    parser.add_argument(
-        "--extra-sources",
-        "-e",
-        help="Apt-style sources",
-        default=os.getenv("EXTRA_SOURCES", ""),
-    )
-    parser.add_argument(
-        "--no-extra-sources", action="store_true", help="ignore any custom apt sources"
-    )
-    parser.add_argument("--image", "-i", help="Docker image to use", default=IMAGE)
-
-    sps = parser.add_subparsers(help="commands")
-
-    # build subcommand
-    build_parser = sps.add_parser("build", help="run git-buildpackage or debuild")
-    build_parser.add_argument(
-        "--gbp", "-g", default="", help="additional git-buildpackage options to pass"
-    )
-    build_parser.add_argument(
-        "--print", "-p", action="store_true", help="print build order and exit"
-    )
-    build_parser.add_argument(
-        "targets", nargs="*", type=Path, help="directories to build"
-    )
-    build_isolates = build_parser.add_mutually_exclusive_group()
-    build_isolates.add_argument(
-        "--isolates-first", action="store_true", help="build free-standing repos first"
-    )
-    build_isolates.add_argument(
-        "--isolates-last", action="store_true", help="build free-standing repos last"
-    )
-    build_isolates.add_argument(
-        "--no-isolates", action="store_true", help="do not build free-standing repos"
-    )
-    build_command = build_parser.add_mutually_exclusive_group()
-    build_command.add_argument(
-        "--with-debuild", action="store_true", help="force building with debuild"
-    )
-    build_command.add_argument(
-        "--with-gbp", action="store_true", help="force building with gbp"
-    )
-    build_parser.set_defaults(func=cmd_build)
-
-    # makefile subcommand
-    makefile_parser = sps.add_parser("makefile", help="create Makefile")
-    makefile_parser.set_defaults(func=cmd_makefile)
-
-    # pull subcommand
-    pull_parser = sps.add_parser("pull", help="pull latest images")
-    pull_parser.set_defaults(func=cmd_pull)
-
-    # rm subcommand
-    rm_parser = sps.add_parser("rm", help="remove workspace container")
-    rm_parser.set_defaults(func=cmd_rm)
-
-    # run subcommand
-    run_parser = sps.add_parser("run", help="run development container in background")
-    run_parser.set_defaults(func=cmd_run)
-
-    # shell subcommand
-    shell_parser = sps.add_parser("shell", help="launch development environment")
-    shell_parser.add_argument("--command", "-c", help="command to run noninteractively")
-    shell_parser.set_defaults(func=cmd_shell)
-
-    args = parser.parse_args()
-
-    if args.version:
-        print("dbp {}".format(__version__))
-        return 0
-
-    # set up logging
-    logging.basicConfig(
-        format="[%(levelname)s] %(message)s", level=10 * (3 - min(args.verbose, 2))
-    )
+    ws = ctx.obj
+    if ":" not in ws.image:
+        ws.image = "{}:{}-{}".format(ws.image, IMAGE_VERSION, ws.dist)
+        if ctx.invoked_subcommand != "build":
+            ws.image += "-dev"
 
     # check for prereqs
     if shutil.which("docker") is None:
-        L.error("Docker not found in PATH. Please install docker.")
+        click.echo("Docker not found in PATH. Please install docker.")
+        sys.exit(1)
+    if shutil.which("git") is None:
+        click.echo("Git not found in PATH. Please install git.")
         sys.exit(1)
 
-    # read sources from ./extra_sources.list and ~/.extra_sources.list
-    if args.extra_sources == "":
-        extra_sources = [
-            Path("extra_sources.list"),
-            Path.home() / ".extra_sources.list",
-        ]
-        for s in extra_sources:
-            if s.exists():
-                args.extra_sources = s.read_text()
-                break
-
-    if args.extra_sources == "":
-        args.extra_sources = OPX_DEFAULT_SOURCES.format(args.dist, args.release)
-
-    if args.no_extra_sources:
-        args.extra_sources = ""
-
-    if args.extra_sources != "":
-        L.info("Loaded extra sources:\n{}".format(args.extra_sources))
-
-    # print help if no subcommand specified
-    if getattr(args, "func", None) is None:
-        parser.print_help()
-        return 0
-
-    # run subcommand
-    return args.func(args)
+    # ensure Docker image is present
+    if ctx.invoked_subcommand in ["run", "build", "pull", "shell"]:
+        try:
+            ws.client.images.get(ws.image)
+        except docker.errors.ImageNotFound:
+            click.echo("Pulling image {}...".format(ws.image))
+            ws.client.images.pull(ws.image)
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+@cli.command()
+@click.option(
+    "--gbp",
+    "-g",
+    envvar="GBP_OPTS",
+    default="",
+    metavar="OPTS",
+    help="Options to pass to Git-buildpackage.",
+)
+@click.option("--print-targets/--no-print-targets", help="Print build order and exit.")
+@click.argument("targets", nargs=-1)
+@pass_workspace
+def build(ws, gbp, print_targets, targets):
+    """Build packages.
+
+    Builds targets specified. Otherwise builds a single repo if run from within the repo
+    or builds all repos with d/control files in dependency order.
+    """
+    if not targets and ws.path == Path.cwd():
+        # If run from workspace root with no targets, build all in dependency order
+        targets = tuple(nx.dfs_postorder_nodes(ws.builddepends_graph()))
+    elif not targets:
+        # If run from a directory in the workspace with no targets, build the directory
+        targets = (Path.cwd().stem,)
+
+    click.echo("Building {} repositories: {}".format(len(targets), " ".join(targets)))
+    if print_targets:
+        sys.exit(0)
+
+    rc = 0
+    remove_container = ws.docker_run()
+
+    for t in targets:
+        click.echo("--- Building {}...".format(t))
+        rc = ws.buildpackage(Path(t), gbp)
+        if rc:
+            click.echo("Building {} failed with return code {}.".format(t, rc))
+            break
+
+    if remove_container:
+        ws.docker_remove()
+
+    sys.exit(rc)
+
+
+@cli.command()
+@pass_workspace
+def makefile(ws):
+    """Write a Makefile suitable for parallel building."""
+    g = ws.builddepends_graph()
+    sys.stdout.write(generate_makefile(g))
+    sys.stdout.flush()
+
+
+@cli.command()
+@pass_workspace
+def pull(ws):
+    """Ensure Docker image is present.
+
+    Pulling is done when creating a Workspace object, so this isn't necessary.
+    """
+
+
+@cli.command()
+@pass_workspace
+def run(ws):
+    """Start a persistent workspace container."""
+    ws.docker_run()
+
+
+@cli.command()
+@pass_workspace
+def rm(ws):
+    """Remove any workspace containers."""
+    ws.docker_remove()
+
+
+@cli.command()
+@click.option("--command", "-c", metavar="CMD", help="Non-interactive command to run.")
+@pass_workspace
+def shell(ws, command):
+    """Execute a shell or a command in a workspace container."""
+    full_cmd = ["bash", "-l"]
+    if command:
+        full_cmd.extend(["-c", command])
+
+    remove_container = ws.docker_run()
+
+    rc = ws.docker_exec(full_cmd)
+
+    if remove_container:
+        ws.docker_remove()
