@@ -100,13 +100,14 @@ class Workspace:
         if gbp_options and build_cmd[0] == "gbp":
             build_cmd.extend(shlex.split(gbp_options))
 
-        rc = self.docker_exec(build_cmd, "/mnt/{}".format(directory))
+        return self.docker_exec(build_cmd, "/mnt/{}".format(directory))
 
-        return rc
+    def docker_exec(self, command: List[str], workdir="/mnt") -> int:
+        """Low level function to execute a command in an already running container."""
+        if not self.container:
+            return 1
 
-    def docker_exec_cmd(self, command: List[str], workdir="/mnt") -> List[str]:
-        """Gets the full docker exec command."""
-        cmd = [
+        full_cmd = [
             "docker",
             "exec",
             "-it" if self.interactive else "-t",
@@ -114,17 +115,10 @@ class Workspace:
             "--workdir={}".format(workdir),
         ]
         for k, v in self.env.items():
-            cmd.append("-e={}={}".format(k, v))
-        cmd.append(self.cname)
-        cmd.extend(command)
-        return cmd
+            full_cmd.append("-e={}={}".format(k, v))
+        full_cmd.append(self.cname)
+        full_cmd.extend(command)
 
-    def docker_exec(self, command: List[str], workdir="/mnt") -> int:
-        """Low level function to execute a command in an already running container."""
-        if not self.container:
-            return 1
-
-        full_cmd = self.docker_exec_cmd(command, workdir)
         proc = subprocess.run(
             full_cmd, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr
         )
