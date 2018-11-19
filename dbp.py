@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "18.11.2"
+__version__ = "18.11.3"
 
 import os
 import shlex

@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+
+## [18.11.3] - 2018/11/19
+### Fixed
+- Running command before container and user are ready
+
 ### Removed
 - Isolate ordering options for dbp build
 
@@ -157,7 +162,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.11.2...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.11.3...HEAD
+[18.11.3]: https://github.com/opx-infra/dbp/compare/v18.11.2...v18.11.3
 [18.11.2]: https://github.com/opx-infra/dbp/compare/v18.11.1...v18.11.2
 [18.11.1]: https://github.com/opx-infra/dbp/compare/v18.11.0...v18.11.1
 [18.11.0]: https://github.com/opx-infra/dbp/compare/v18.10.7...v18.11.0
