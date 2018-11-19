@@ -155,8 +155,12 @@ class Workspace:
             tty=True,
             volumes=self.volumes,
         )
-        # leave enough time for entrypoint to run and our user to be created
-        sleep(1)
+
+        # wait until entrypoint has run and our user is created
+        while self.container.status != "running":
+            sleep(0.1)
+            self.container.reload()
+
         return True
 
 
