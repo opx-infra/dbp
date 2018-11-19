@@ -131,8 +131,9 @@ class Workspace:
         except docker.errors.NotFound:
             return
 
-        click.echo("Removing container {}...".format(self.cname))
+        click.echo("Removing container {}...".format(self.cname), nl=False)
         container.remove(force=True)
+        click.echo("Done!")
 
     def docker_run(self) -> bool:
         """Runs the container and returns True if it didn't exist before."""
@@ -141,7 +142,7 @@ class Workspace:
             self.container = containers[0]
             return False
 
-        click.echo("Starting container {}...".format(self.cname))
+        click.echo("Starting container {}...".format(self.cname), nl=False)
         self.container = self.client.containers.run(
             image=self.image,
             detach=True,
@@ -157,9 +158,12 @@ class Workspace:
         )
 
         # wait until entrypoint has run and our user is created
+        sleep(0.1)
         while self.container.status != "running":
-            sleep(0.1)
+            click.echo(".", nl=False)
+            sleep(0.5)
             self.container.reload()
+        click.echo("Done!")
 
         return True
 
