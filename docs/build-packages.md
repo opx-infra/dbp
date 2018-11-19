@@ -27,7 +27,7 @@ Use *dbp build* without any arguments to build a full workspace serially. This r
 $ dbp build
 ```
 
-The `--print-tergets` flag can be used to preview the build order.
+The `--print-targets` flag can be used to preview the build order.
 ```bash
 $ dbp build --print-targets
 opx-logging opx-common-utils
