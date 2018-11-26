@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+
+## [18.11.4] - 2018/11/26
 ### Added
 - Option to always remove any running container first
 
@@ -172,7 +174,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.11.3...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.11.4...HEAD
+[18.11.4]: https://github.com/opx-infra/dbp/compare/v18.11.3...v18.11.4
 [18.11.3]: https://github.com/opx-infra/dbp/compare/v18.11.2...v18.11.3
 [18.11.2]: https://github.com/opx-infra/dbp/compare/v18.11.1...v18.11.2
 [18.11.1]: https://github.com/opx-infra/dbp/compare/v18.11.0...v18.11.1
