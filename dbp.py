@@ -47,7 +47,7 @@ class Workspace:
         if cname:
             self.cname = cname
         else:
-            self.cname = "{}-dbp-{}".format(os.getenv("USER"), self.path.stem)
+            self.cname = "{}-dbp-{}".format(os.getenv("USER"), self.path.name)
 
         # Sources order of preference
         # 1. extra_sources variable (set to "" for none)

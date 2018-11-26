@@ -10,6 +10,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ### Changed
 - Dbp log messages now to go stderr
+- Use full name of directory for container name, not stem
 
 ### Fixed
 - Missing user in container at runtime
