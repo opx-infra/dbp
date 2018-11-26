@@ -8,6 +8,9 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Option to always remove any running container first
 
+### Changed
+- Dbp log messages now to go stderr
+
 ### Fixed
 - Missing user in container at runtime
 - `dbp shell` returning 0 on error

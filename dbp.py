@@ -22,6 +22,14 @@ IMAGE_VERSION = "v2.0.4"
 OPX_DEFAULT_SOURCES = "deb http://deb.openswitch.net/{} {} opx opx-non-free"
 
 
+def info(s, nl=True):
+    click.secho(s, nl=nl, fg="blue", err=True)
+
+
+def error(s, nl=True):
+    click.secho(s, nl=nl, fg="red", err=True)
+
+
 class Workspace:
     """Manages the location of the workspace and its container."""
 
@@ -131,9 +139,9 @@ class Workspace:
         except docker.errors.NotFound:
             return
 
-        click.echo("Removing container {}...".format(self.cname), nl=False)
+        info("Removing container {}...".format(self.cname), nl=False)
         container.remove(force=True)
-        click.echo("Done!")
+        info("Done!")
 
     def docker_run(self) -> bool:
         """Runs the container and returns True if it didn't exist before."""
@@ -142,7 +150,7 @@ class Workspace:
             self.container = containers[0]
             return False
 
-        click.echo("Starting container {}...".format(self.cname), nl=False)
+        info("Starting container {}...".format(self.cname), nl=False)
         self.container = self.client.containers.run(
             image=self.image,
             detach=True,
@@ -160,10 +168,10 @@ class Workspace:
         # wait until entrypoint has run and our user is created
         sleep(0.1)
         while self.container.status != "running":
-            click.echo(".", nl=False)
+            info(".", nl=False)
             sleep(0.5)
             self.container.reload()
-        click.echo("Done!")
+        info("Done!")
 
         return True
 
@@ -261,10 +269,10 @@ def cli(ctx, cname, debug, dist, extra_sources, image, release, rm_first):
 
     # check for prereqs
     if shutil.which("docker") is None:
-        click.echo("Docker not found in PATH. Please install docker.")
+        error("Docker not found in PATH. Please install docker.")
         sys.exit(1)
     if shutil.which("git") is None:
-        click.echo("Git not found in PATH. Please install git.")
+        error("Git not found in PATH. Please install git.")
         sys.exit(1)
 
     # ensure Docker image is present
@@ -272,7 +280,7 @@ def cli(ctx, cname, debug, dist, extra_sources, image, release, rm_first):
         try:
             ws.client.images.get(ws.image)
         except docker.errors.ImageNotFound:
-            click.echo("Pulling image {}...".format(ws.image))
+            info("Pulling image {}...".format(ws.image))
             ws.client.images.pull(ws.image)
 
     if rm_first:
@@ -304,7 +312,7 @@ def build(ws, gbp, print_targets, targets):
         # If run from a directory in the workspace with no targets, build the directory
         targets = (Path.cwd().stem,)
 
-    click.echo("Building {} repositories: {}".format(len(targets), " ".join(targets)))
+    info("Building {} repositories: {}".format(len(targets), " ".join(targets)))
     if print_targets:
         sys.exit(0)
 
@@ -312,10 +320,10 @@ def build(ws, gbp, print_targets, targets):
     remove_container = ws.docker_run()
 
     for t in targets:
-        click.echo("--- Building {}...".format(t))
+        info("--- Building {}...".format(t))
         rc = ws.buildpackage(Path(t), gbp)
         if rc:
-            click.echo("Building {} failed with return code {}.".format(t, rc))
+            error("Building {} failed with return code {}.".format(t, rc))
             break
 
     if remove_container:

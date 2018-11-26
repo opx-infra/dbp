@@ -13,6 +13,7 @@ description-file="README.md"
 requires = [
     "click",
     "controlgraph >=0.7.1",
+    "colorama",
     "docker",
     "networkx",
     "pydot",
