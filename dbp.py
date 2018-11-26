@@ -242,9 +242,14 @@ pass_workspace = click.make_pass_decorator(Workspace)
     metavar="RELEASE",
     help="OPX release.",
 )
+@click.option(
+    "--rm-first/--no-rm-first",
+    default=False,
+    help="Remove any active container before running.",
+)
 @click.version_option(__version__)
 @click.pass_context
-def cli(ctx, cname, debug, dist, extra_sources, image, release):
+def cli(ctx, cname, debug, dist, extra_sources, image, release, rm_first):
     """Build Debian packages in a managed Debian development environment."""
     ctx.obj = Workspace(cname, debug, dist, extra_sources, image, release)
 
@@ -269,6 +274,9 @@ def cli(ctx, cname, debug, dist, extra_sources, image, release):
         except docker.errors.ImageNotFound:
             click.echo("Pulling image {}...".format(ws.image))
             ws.client.images.pull(ws.image)
+
+    if rm_first:
+        ws.docker_remove()
 
 
 @cli.command()

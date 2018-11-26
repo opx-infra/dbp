@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
+### Added
+- Option to always remove any running container first
+
 ### Fixed
 - Missing user in container at runtime
 - `dbp shell` returning 0 on error
