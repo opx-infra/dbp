@@ -363,3 +363,5 @@ def shell(ws, command):
 
     if remove_container:
         ws.docker_remove()
+
+    sys.exit(rc)
