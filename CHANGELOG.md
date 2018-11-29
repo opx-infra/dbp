@@ -6,6 +6,10 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.11.5] - 2018/11/29
+### Changed
+- opx-build has been upgraded from `installer/3.0.0` to `installer/3.1.0`
+
 ## [18.11.4] - 2018/11/26
 ### Added
 - Option to always remove any running container first
@@ -174,7 +178,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.11.4...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.11.5...HEAD
+[18.11.5]: https://github.com/opx-infra/dbp/compare/v18.11.4...v18.11.5
 [18.11.4]: https://github.com/opx-infra/dbp/compare/v18.11.3...v18.11.4
 [18.11.3]: https://github.com/opx-infra/dbp/compare/v18.11.2...v18.11.3
 [18.11.2]: https://github.com/opx-infra/dbp/compare/v18.11.1...v18.11.2

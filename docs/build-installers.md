@@ -1,6 +1,6 @@
 # Building ONIE Installers
 
-[*opx-build*](https://github.com/open-switch/opx-build/tree/installer/3.0.0) is used for building ONIE installers. It is pre-installed in the development environment.
+[*opx-build*](https://github.com/open-switch/opx-build/tree/installer/3.1.0) is used for building ONIE installers. It is pre-installed in the development environment.
 
 ```bash
 # Clone installer blueprint
