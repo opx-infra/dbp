@@ -119,12 +119,12 @@ class Workspace:
             "docker",
             "exec",
             "-it" if self.interactive else "-t",
-            "--user=build",
             "--workdir={}".format(workdir),
         ]
         for k, v in self.env.items():
             full_cmd.append("-e={}={}".format(k, v))
         full_cmd.append(self.cname)
+        full_cmd.append("/entrypoint.sh")
         full_cmd.extend(command)
 
         proc = subprocess.run(
@@ -163,14 +163,9 @@ class Workspace:
             stdin_open=sys.stdin.isatty(),
             tty=True,
             volumes=self.volumes,
+            entrypoint="bash",
+            command=[],
         )
-
-        # wait until entrypoint has run and our user is created
-        sleep(0.1)
-        while self.container.status != "running":
-            info(".", nl=False)
-            sleep(0.5)
-            self.container.reload()
         info("Done!")
 
         return True
