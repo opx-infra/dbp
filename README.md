@@ -1,9 +1,7 @@
 # Docker-buildpackage
 
-[![PyPI version](https://badge.fury.io/py/dbp.svg)](https://pypi.org/project/dbp/)
 [![CalVer](https://img.shields.io/badge/calver-YY.0M.MICRO-blue.svg)](https://pypi.org/project/dbp/)
 [![Build status](https://badge.buildkite.com/1767c846c36bcae205347eb72a5396be1474608249b0849f16.svg)](https://buildkite.com/opx/opx-infra-dbp)
-[![codecov](https://codecov.io/gh/opx-infra/dbp/branch/master/graph/badge.svg)](https://codecov.io/gh/opx-infra/dbp)
 
 Docker-buildpackage is a tool for building OpenSwitch Debian packages.
 
@@ -18,7 +16,8 @@ Docker-buildpackage is a tool for building OpenSwitch Debian packages.
 ## Install
 
 ```bash
-pip3 install dbp
+wget ...
+chmod +x ...
 ```
 
 ## Docs

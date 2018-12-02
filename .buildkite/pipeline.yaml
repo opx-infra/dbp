@@ -1,28 +1,24 @@
 steps:
-  - label: ":python: format and test"
-    branches: "!v*.*.*"
-    command: |
-      echo "+++ Running formatter"
-      /usr/local/bin/black --check dbp.py
-      echo "--- Prepping virtualenv"
-      rm -rf .venv
-      python3 -mvenv .venv
-      .venv/bin/pip install flit
-      .venv/bin/flit install -s
-      echo "+++ Testing"
-      .venv/bin/pytest -s --cov=dbp tests/ --cov-report=xml --cov-report=term
-      PATH=$PWD/.venv/bin:$PATH bash <(curl -s https://codecov.io/bash)
-  - label: ":python: publish docs and package"
+  - label: ":go: build linux"
+    artifact_paths: "./dist/dbp-linux-amd64"
+    command: "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o dist/dbp-linux-amd64"
+    plugins:
+      - docker#v2.1.0:
+          image: "golang"
+  - label: ":go: build darwin"
+    artifact_paths: "./dist/dbp-darwin-amd64"
+    command: "CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o dist/dbp-darwin-amd64"
+    plugins:
+      - docker#v2.1.0:
+          image: "golang"
+  - label: "publish docs"
     branches: "v*.*.*"
     agents:
       queue: "deploy"
     command: |
-      echo "--- Installing flit and requirements"
+      echo "--- Installing mkdocs"
       rm -rf .venv
       python3 -mvenv .venv
-      .venv/bin/pip install flit
-      .venv/bin/flit install -s
+      .venv/bin/pip install mkdocs-material pygments pymdown-extensions
       echo "+++ Deploying site"
       .venv/bin/mkdocs gh-deploy --force
-      echo "+++ Publishing to PyPi"
-      .venv/bin/flit publish
