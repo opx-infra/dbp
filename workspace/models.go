@@ -9,7 +9,7 @@ import (
 
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/sys/unix"
 )
 
 // Workspace represents a Docker container and directory
@@ -86,7 +86,8 @@ func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraS
 	}
 
 	// Interactive
-	ws.Interactive = terminal.IsTerminal(int(os.Stdin.Fd()))
+	_, err = unix.IoctlGetTermios(int(os.Stdin.Fd()), unix.TCGETS)
+	ws.Interactive = err == nil
 
 	// Set up environment
 	// For the timezone, setting $TZ is more portable than mounting /etc/localtime
