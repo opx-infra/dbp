@@ -86,7 +86,7 @@ func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraS
 	}
 
 	// Interactive
-	_, err = unix.IoctlGetTermios(int(os.Stdin.Fd()), unix.TCGETS)
+	_, err = unix.IoctlGetTermios(int(os.Stdin.Fd()), ioctlReadTermios)
 	ws.Interactive = err == nil
 
 	// Set up environment

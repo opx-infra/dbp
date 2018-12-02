@@ -30,7 +30,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ok := ws.DockerExec([]string{"bash", "-l"}, "")
+	ok := ws.DockerExec([]string{"bash", "-l", "-c", "ls -l"}, "")
 	if !ok {
 		if !alreadyRunning {
 			// Clean up

@@ -70,10 +70,9 @@ func (ws *Workspace) BuildPackage(path string) error {
 // DockerExec runs a command in a running gbp-docker container
 func (ws *Workspace) DockerExec(cmd []string, workDir string) bool {
 	// TODO: use docker sdk
-	// https://github.com/fsouza/go-dockerclient/issues/287
+	// https://github.com/docker/cli/blob/master/cli/command/container/exec.go
 	// https://godoc.org/github.com/docker/docker/api/types
 	// https://godoc.org/github.com/docker/docker/client
-	// https://github.com/moby/moby/blob/master/api/types/container/config.go
 	if workDir == "" {
 		workDir = "/mnt"
 	}
