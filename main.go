@@ -6,6 +6,16 @@ import (
 	"github.com/opx-infra/dbp/workspace"
 )
 
+func cleanup(ws *workspace.Workspace, remove bool) {
+	if remove {
+		log.Printf("removing container %s...", ws.CName)
+		err := ws.RemoveContainer()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
 func main() {
 	// TODO: argument parsing and all that jazz
 	// https://github.com/opx-infra/dbp/blob/15a41883cfdefc18f92b2e5a5885971c2a7d50d3/dbp/main.go
@@ -24,7 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("starting container %s...", ws.CName)
+	log.Printf("ensuring container %s is running...", ws.CName)
 	alreadyRunning, err := ws.RunContainer(false)
 	if err != nil {
 		log.Fatal(err)
@@ -32,14 +42,7 @@ func main() {
 
 	ok := ws.DockerExec([]string{"bash", "-l", "-c", "ls -l"}, "")
 	if !ok {
-		if !alreadyRunning {
-			// Clean up
-			log.Printf("removing container %s...", ws.CName)
-			err = ws.RemoveContainer()
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
+		cleanup(ws, !alreadyRunning)
 		log.Fatal("command exited with non-zero return code")
 	}
 
@@ -48,9 +51,5 @@ func main() {
 	// log.Fatal(err)
 	// }
 
-	log.Printf("removing container %s...", ws.CName)
-	err = ws.RemoveContainer()
-	if err != nil {
-		log.Fatal(err)
-	}
+	cleanup(ws, !alreadyRunning)
 }
