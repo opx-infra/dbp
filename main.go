@@ -8,7 +8,6 @@ import (
 
 func cleanup(ws *workspace.Workspace, remove bool) {
 	if remove {
-		log.Printf("removing container %s...", ws.CName)
 		err := ws.RemoveContainer()
 		if err != nil {
 			log.Fatal(err)
@@ -34,7 +33,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("ensuring container %s is running...", ws.CName)
 	alreadyRunning, err := ws.RunContainer(false)
 	if err != nil {
 		log.Fatal(err)
