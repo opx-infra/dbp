@@ -44,8 +44,9 @@ func main() {
 		log.Fatal("command exited with non-zero return code")
 	}
 
-	// err = ws.BuildPackage("dbp-go")
+	// err = ws.BuildPackage("dbp")
 	// if err != nil {
+	// cleanup(ws, !alreadyRunning)
 	// log.Fatal(err)
 	// }
 

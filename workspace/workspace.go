@@ -88,7 +88,7 @@ func (ws *Workspace) DockerExec(cmd []string, workDir string) bool {
 	proc.Stdin = os.Stdin
 	proc.Stdout = os.Stdout
 	proc.Stderr = os.Stderr
-	fmt.Printf("Running %v in %s...\n", cmd, workDir)
+	ws.Logger.Printf("Running %v in %s...\n", cmd, workDir)
 	proc.Run()
 	return proc.ProcessState.Success()
 }
@@ -99,7 +99,7 @@ func (ws *Workspace) PullImage() error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Pulling image %s...\n", ws.Image)
+	ws.Logger.Printf("Pulling image %s...\n", ws.Image)
 	out, err := ws.Client.ImagePull(context.Background(), ws.Image, types.ImagePullOptions{})
 	if err != nil {
 		return errors.Wrap(err, "pulling image")
@@ -125,6 +125,7 @@ func (ws *Workspace) RemoveContainer() error {
 	for _, container := range containers {
 		if len(container.Names) == 1 && container.Names[0] == fmt.Sprintf("/%s", ws.CName) {
 			// Our container already exists!
+			ws.Logger.Printf("Removing container %s...\n", ws.CName)
 			err = ws.Client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{
 				Force: true,
 			})

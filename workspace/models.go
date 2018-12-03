@@ -2,6 +2,9 @@ package workspace
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -14,6 +17,7 @@ import (
 
 // Workspace represents a Docker container and directory
 type Workspace struct {
+	Logger       *log.Logger       // Debug logger
 	Debug        bool              // Build debug, unoptimized, unstripped packages
 	Dist         string            // Debian distribution to build against
 	Image        string            // Docker image in use
@@ -31,6 +35,14 @@ type Workspace struct {
 func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraSources string) (*Workspace, error) {
 	var ws Workspace
 	var err error
+
+	var out io.Writer
+	if verbose {
+		out = os.Stderr
+	} else {
+		out = ioutil.Discard
+	}
+	ws.Logger = log.New(out, "[DEBUG] ", log.Lshortfile)
 
 	// Process arguments
 	// debug
@@ -122,5 +134,6 @@ func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraS
 		return &ws, errors.Wrap(err, "stat on gitconfig failed")
 	}
 
+	ws.Logger.Printf("Created workspace: %+v\n", ws)
 	return &ws, nil
 }
