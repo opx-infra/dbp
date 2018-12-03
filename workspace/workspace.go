@@ -80,9 +80,7 @@ func (ws *Workspace) DockerExec(cmd []string, workDir string) bool {
 	if ws.Interactive {
 		fullCmd = append(fullCmd, "--interactive")
 	}
-	for k, v := range ws.Env {
-		fullCmd = append(fullCmd, fmt.Sprintf("-e=%s=%s", k, v))
-	}
+	fullCmd = append(fullCmd, ws.envStrings(true)...)
 	fullCmd = append(fullCmd, ws.CName, "/entrypoint.sh")
 	fullCmd = append(fullCmd, cmd...)
 
@@ -186,17 +184,11 @@ func (ws *Workspace) RunContainer(pull bool) (bool, error) {
 	}
 
 	// Create container
-	env := make([]string, len(ws.Env))
-	i := 0
-	for k, v := range ws.Env {
-		env[i] = fmt.Sprintf("%s=%s", k, v)
-		i++
-	}
 	res, err := ws.Client.ContainerCreate(ctx, &container.Config{
 		Hostname:   ws.Dist,
 		Tty:        true,
 		OpenStdin:  ws.Interactive,
-		Env:        env,
+		Env:        ws.envStrings(false),
 		Cmd:        []string{"-l"},
 		Image:      ws.Image,
 		Entrypoint: []string{"bash"},
@@ -225,6 +217,21 @@ func (ws *Workspace) dockerClient() (*client.Client, error) {
 		}
 	}
 	return ws.Client, nil
+}
+
+// envStrings returns docker-ready env var pairs
+func (ws *Workspace) envStrings(withOpt bool) []string {
+	var opt string
+	if withOpt {
+		opt = "-e="
+	}
+	env := make([]string, len(ws.Env))
+	i := 0
+	for k, v := range ws.Env {
+		env[i] = fmt.Sprintf("%s%s=%s", opt, k, v)
+		i++
+	}
+	return env
 }
 
 // getenv is os.getenv with a default value for convenience
