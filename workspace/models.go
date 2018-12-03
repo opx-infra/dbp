@@ -15,20 +15,27 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const (
+	defaultDist    = "stretch"
+	defaultRelease = "unstable"
+	dockerImage    = "opxhub/gbp:v2.0.5"
+)
+
 // Workspace represents a Docker container and directory
 type Workspace struct {
-	Logger       *log.Logger       // Debug logger
+	CName        string            // Container name
+	Client       *client.Client    // Docker client
 	Debug        bool              // Build debug, unoptimized, unstripped packages
 	Dist         string            // Debian distribution to build against
+	Env          map[string]string // Environment variables for the container
+	ExtraSources string            // Extra apt sources to use
 	Image        string            // Docker image in use
 	Interactive  bool              // True if Stdin is a terminal (see golang.org/x/crypto/ssh/terminal)
-	Release      string            // OPX release to build against
+	DebugLogger  *log.Logger       // Debug logger
+	InfoLogger   *log.Logger       // Info logger
 	Path         string            // Location of workspace
-	CName        string            // Container name
-	ExtraSources string            // Extra apt sources to use
-	Env          map[string]string // Environment variables for the container
+	Release      string            // OPX release to build against
 	Volumes      []string          // Volume mount mapping for the container
-	Client       *client.Client    // Docker client
 }
 
 // NewWorkspace constructs a workspace to run package builds in
@@ -42,7 +49,8 @@ func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraS
 	} else {
 		out = ioutil.Discard
 	}
-	ws.Logger = log.New(out, "[DEBUG] ", log.Lshortfile)
+	ws.DebugLogger = log.New(out, "[DEBUG] ", log.Lmicroseconds|log.Lshortfile)
+	ws.InfoLogger = log.New(os.Stderr, "", 0)
 
 	// Process arguments
 	// debug
@@ -74,14 +82,23 @@ func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraS
 		ws.CName = fmt.Sprintf("%s-dbp-%s", os.Getenv("USER"), filepath.Base(ws.Path))
 	}
 
-	// image
-	ws.Image = image
-
 	// dist
+	if dist == "" {
+		dist = defaultDist
+	}
 	ws.Dist = dist
 
 	// release
+	if release == "" {
+		release = defaultRelease
+	}
 	ws.Release = release
+
+	// image
+	if image == "" {
+		image = fmt.Sprintf("%s-%s-dev", dockerImage, ws.Dist)
+	}
+	ws.Image = image
 
 	// extraSources
 	// Sources order of preference
@@ -134,6 +151,6 @@ func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraS
 		return &ws, errors.Wrap(err, "stat on gitconfig failed")
 	}
 
-	ws.Logger.Printf("Created workspace: %+v\n", ws)
+	ws.DebugLogger.Printf("Created workspace: %+v\n", ws)
 	return &ws, nil
 }

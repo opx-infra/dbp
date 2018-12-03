@@ -8,7 +8,7 @@ dbp: $(GO_FILES)
 
 .PHONY: run
 run: dbp
-	./$<
+	./$< -h
 
 .PHONY: clean
 clean:

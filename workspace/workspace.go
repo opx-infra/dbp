@@ -88,7 +88,7 @@ func (ws *Workspace) DockerExec(cmd []string, workDir string) bool {
 	proc.Stdin = os.Stdin
 	proc.Stdout = os.Stdout
 	proc.Stderr = os.Stderr
-	ws.Logger.Printf("Running %v in %s...\n", cmd, workDir)
+	ws.DebugLogger.Printf("Running %v in %s...\n", cmd, workDir)
 	proc.Run()
 	return proc.ProcessState.Success()
 }
@@ -99,13 +99,16 @@ func (ws *Workspace) PullImage() error {
 	if err != nil {
 		return err
 	}
-	ws.Logger.Printf("Pulling image %s...\n", ws.Image)
+	ws.InfoLogger.Printf("Pulling image %s...\n", ws.Image)
 	out, err := ws.Client.ImagePull(context.Background(), ws.Image, types.ImagePullOptions{})
 	if err != nil {
 		return errors.Wrap(err, "pulling image")
 	}
 	defer out.Close()
 	// io.Copy(os.Stdout, out)
+	if _, err := ioutil.ReadAll(out); err != nil {
+		return errors.Wrap(err, "pulling image")
+	}
 	return nil
 }
 
@@ -125,7 +128,7 @@ func (ws *Workspace) RemoveContainer() error {
 	for _, container := range containers {
 		if len(container.Names) == 1 && container.Names[0] == fmt.Sprintf("/%s", ws.CName) {
 			// Our container already exists!
-			ws.Logger.Printf("Removing container %s...\n", ws.CName)
+			ws.DebugLogger.Printf("Removing container %s...\n", ws.CName)
 			err = ws.Client.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{
 				Force: true,
 			})
@@ -185,6 +188,7 @@ func (ws *Workspace) RunContainer(pull bool) (bool, error) {
 	}
 
 	// Create container
+	ws.DebugLogger.Printf("Running container %s...\n", ws.CName)
 	res, err := ws.Client.ContainerCreate(ctx, &container.Config{
 		Hostname:   ws.Dist,
 		Tty:        true,
@@ -201,6 +205,7 @@ func (ws *Workspace) RunContainer(pull bool) (bool, error) {
 	}
 
 	// Start container
+	ws.DebugLogger.Printf("Starting container %s...\n", ws.CName)
 	if err := ws.Client.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil {
 		return false, errors.Wrap(err, "starting container")
 	}
