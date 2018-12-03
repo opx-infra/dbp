@@ -19,6 +19,30 @@ import (
 // https://github.com/opx-infra/builddepends/blob/master/builddepends.go
 // TODO: makefile from graph
 
+// BuildAllPackages builds all packages specified in dependency order
+func (ws *Workspace) BuildAllPackages(paths []string) error {
+	if len(paths) == 0 {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		if cwd == ws.Path {
+			// TODO: build dependency graph
+			paths = append(paths, filepath.Base(cwd))
+		} else {
+			paths = append(paths, filepath.Base(cwd))
+		}
+	}
+
+	for _, path := range paths {
+		err := ws.BuildPackage(path)
+		if err != nil {
+			return errors.Wrap(err, path)
+		}
+	}
+	return nil
+}
+
 // BuildPackage runs gbp buildpackage or debuild in a running container
 func (ws *Workspace) BuildPackage(path string) error {
 	if strings.HasPrefix(path, "/") {
