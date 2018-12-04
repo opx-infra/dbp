@@ -123,7 +123,7 @@ func (ws *Workspace) PullImage() error {
 	if err != nil {
 		return err
 	}
-	ws.InfoLogger.Printf("Pulling image %s...\n", ws.Image)
+	fmt.Printf("Pulling image %s...\n", ws.Image)
 	out, err := ws.Client.ImagePull(context.Background(), ws.Image, types.ImagePullOptions{})
 	if err != nil {
 		return errors.Wrap(err, "pulling image")

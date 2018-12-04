@@ -32,7 +32,6 @@ type Workspace struct {
 	Image        string            // Docker image in use
 	Interactive  bool              // True if Stdin is a terminal (see golang.org/x/crypto/ssh/terminal)
 	DebugLogger  *log.Logger       // Debug logger
-	InfoLogger   *log.Logger       // Info logger
 	Path         string            // Location of workspace
 	Release      string            // OPX release to build against
 	Volumes      []string          // Volume mount mapping for the container
@@ -43,15 +42,6 @@ func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraS
 	var ws Workspace
 	var err error
 
-	var out io.Writer
-	if verbose {
-		out = os.Stderr
-	} else {
-		out = ioutil.Discard
-	}
-	ws.DebugLogger = log.New(out, "[DEBUG] ", log.Lmicroseconds|log.Lshortfile)
-	ws.InfoLogger = log.New(os.Stderr, "", 0)
-
 	// Process arguments
 	// debug
 	ws.Debug = debug
@@ -59,6 +49,15 @@ func NewWorkspace(debug, verbose bool, path, cname, image, dist, release, extraS
 	if debug {
 		debugOptions = "nostrip noopt debug"
 	}
+
+	// verbose
+	var out io.Writer
+	if verbose {
+		out = os.Stderr
+	} else {
+		out = ioutil.Discard
+	}
+	ws.DebugLogger = log.New(out, "[DEBUG] ", log.Lmicroseconds|log.Lshortfile)
 
 	// path
 	ws.Path, err = filepath.Abs(path)

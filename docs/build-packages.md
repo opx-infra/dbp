@@ -27,12 +27,6 @@ Use *dbp build* without any arguments to build a full workspace serially. This r
 $ dbp build
 ```
 
-The `--print-targets` flag can be used to preview the build order.
-```bash
-$ dbp build --print-targets
-opx-logging opx-common-utils
-```
-
 To build in parallel, use the `makefile` subcommand.
 ```bash
 dbp makefile >Makefile && make -j
