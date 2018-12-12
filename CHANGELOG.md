@@ -6,6 +6,13 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.12.1] - 2018/12/12
+### Changed
+- Docker entrypoint is run directly on shell/build
+
+### Fixed
+- Missing user build
+
 ## [18.11.5] - 2018/11/29
 ### Changed
 - opx-build has been upgraded from `installer/3.0.0` to `installer/3.1.0`
@@ -178,7 +185,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.11.5...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.12.1...HEAD
+[18.12.1]: https://github.com/opx-infra/dbp/compare/v18.11.5...v18.12.1
 [18.11.5]: https://github.com/opx-infra/dbp/compare/v18.11.4...v18.11.5
 [18.11.4]: https://github.com/opx-infra/dbp/compare/v18.11.3...v18.11.4
 [18.11.3]: https://github.com/opx-infra/dbp/compare/v18.11.2...v18.11.3
