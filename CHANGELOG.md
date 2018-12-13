@@ -6,6 +6,11 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.12.2] - 2018/12/13
+### Changed
+- Bump opxhub/gbp version to 2.0.6
+  - Set deb.openswitch.net apt priority to 750
+
 ## [18.12.1] - 2018/12/12
 ### Changed
 - Docker entrypoint is run directly on shell/build
@@ -185,7 +190,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.12.1...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.12.2...HEAD
+[18.12.2]: https://github.com/opx-infra/dbp/compare/v18.12.1...v18.12.2
 [18.12.1]: https://github.com/opx-infra/dbp/compare/v18.11.5...v18.12.1
 [18.11.5]: https://github.com/opx-infra/dbp/compare/v18.11.4...v18.11.5
 [18.11.4]: https://github.com/opx-infra/dbp/compare/v18.11.3...v18.11.4

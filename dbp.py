@@ -1,6 +1,6 @@
 """Simple program to manage gbp-docker container lifecycle."""
 
-__version__ = "18.12.1"
+__version__ = "18.12.2"
 
 import os
 import shlex
@@ -18,7 +18,7 @@ import networkx as nx
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 IMAGE = "opxhub/gbp"
-IMAGE_VERSION = "v2.0.5"
+IMAGE_VERSION = "v2.0.6"
 OPX_DEFAULT_SOURCES = "deb http://deb.openswitch.net/{} {} opx opx-non-free"
 
 
