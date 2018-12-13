@@ -6,6 +6,11 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 
 ## [Unreleased]
 
+## [18.12.3] - 2018/12/13
+### Changed
+- Bump opxhub/gbp version to 2.0.7
+    - Bump opx-build to 3.1.0+opx1
+
 ## [18.12.2] - 2018/12/13
 ### Changed
 - Bump opxhub/gbp version to 2.0.6
@@ -190,7 +195,8 @@ and this project adheres to [Calendar Versioning](https://calver.org/).
 ### Added
 - Everything
 
-[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.12.2...HEAD
+[Unreleased]: https://github.com/opx-infra/dbp/compare/v18.12.3...HEAD
+[18.12.3]: https://github.com/opx-infra/dbp/compare/v18.12.2...v18.12.3
 [18.12.2]: https://github.com/opx-infra/dbp/compare/v18.12.1...v18.12.2
 [18.12.1]: https://github.com/opx-infra/dbp/compare/v18.11.5...v18.12.1
 [18.11.5]: https://github.com/opx-infra/dbp/compare/v18.11.4...v18.11.5
