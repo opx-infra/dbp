@@ -18,7 +18,7 @@ import networkx as nx
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 IMAGE = "opxhub/gbp"
-IMAGE_VERSION = "v2.0.7"
+IMAGE_VERSION = "v2.0.9"
 OPX_DEFAULT_SOURCES = "deb http://deb.openswitch.net/{} {} opx opx-non-free"
 
 
